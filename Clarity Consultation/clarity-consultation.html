@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clarity Consultation — LuxeCraft Consulting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --gold: #B8960C; --gold-light: #D4AF37; --sb: rgba(184,150,12,0.25);
+    --bg: #FFFFFF; --bg2: #F5F3EE; --text: #1C1C1E; --text2: #5A5A5A;
+    --text3: #9A9A9A; --border: rgba(0,0,0,0.10); --border2: rgba(0,0,0,0.18);
+    --fd: 'Cormorant Garamond', Georgia, serif; --fb: 'Montserrat', 'Helvetica Neue', sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #111111; --bg2: #1E1E1E; --text: #F0EDE6; --text2: #A0A0A0; --text3: #606060; --border: rgba(255,255,255,0.10); --border2: rgba(255,255,255,0.18); }
+  }
+  html { font-size: 16px; }
+  body { font-family: var(--fb); background: var(--bg); color: var(--text); min-height: 100vh; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  .hd { display: flex; align-items: flex-start; justify-content: space-between; padding-bottom: 1.5rem; border-bottom: 1px solid var(--sb); margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap; }
+  .hd h1 { font-family: var(--fd); font-size: 30px; font-weight: 600; letter-spacing: .02em; line-height: 1.15; }
+  .hd .bs { font-size: 10px; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); margin-top: 5px; }
+  .pw { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .pl { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text2); }
+  .pt { width: 140px; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .pf { height: 100%; background: var(--gold); border-radius: 2px; transition: width .4s ease; }
+
+  .cb { display: flex; align-items: center; gap: 12px; background: var(--bg2); border: .5px solid var(--sb); border-radius: 8px; padding: 10px 16px; margin-bottom: 1.25rem; }
+  .cb label { font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); white-space: nowrap; flex-shrink: 0; }
+  .cb input { flex: 1; font-family: var(--fb); font-size: 14px; font-weight: 500; background: transparent; border: none; outline: none; color: var(--text); }
+  .cb input::placeholder { color: var(--text3); }
+
+  .nt { display: flex; border-bottom: 1px solid var(--sb); margin-bottom: 1.75rem; overflow-x: auto; scrollbar-width: none; }
+  .nt::-webkit-scrollbar { display: none; }
+  .nt button { font-family: var(--fb); font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; padding: 10px 16px; border: none; background: transparent; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: color .2s, border-color .2s; position: relative; bottom: -1px; display: flex; align-items: center; gap: 5px; }
+  .nt button.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .nt button:hover:not(.active) { color: var(--text); }
+  .td { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); opacity: 0; transition: opacity .2s; flex-shrink: 0; }
+  .nt button.hn .td { opacity: 1; }
+
+  .sp { display: none; } .sp.active { display: block; }
+  .sh { display: flex; align-items: flex-start; gap: 18px; margin-bottom: 1.25rem; }
+  .sn { font-family: var(--fd); font-size: 52px; font-weight: 400; line-height: 1; color: var(--sb); flex-shrink: 0; width: 48px; }
+  .sm .st { font-family: var(--fd); font-size: 22px; font-weight: 600; line-height: 1.2; }
+  .sm .sti { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); margin-top: 4px; }
+  .sm .sd { font-size: 13px; color: var(--text2); line-height: 1.65; margin-top: 7px; max-width: 600px; }
+
+  .tp { background: var(--bg2); border-left: 2px solid var(--gold); border-radius: 0 8px 8px 0; padding: 14px 16px; margin-bottom: 1.25rem; }
+  .tp .tpl { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+  .tp ul { list-style: none; padding: 0; }
+  .tp ul li { font-size: 13px; color: var(--text); line-height: 1.55; padding: 4px 0 4px 18px; position: relative; }
+  .tp ul li::before { content: '—'; position: absolute; left: 0; color: var(--gold); font-size: 11px; }
+
+  .qg { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.25rem; }
+  @media (max-width: 600px) { .qg { grid-template-columns: 1fr; } }
+  .qc { background: var(--bg2); border: .5px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .qc.full { grid-column: 1 / -1; }
+  .ql { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  .qt { font-size: 13px; color: var(--text); line-height: 1.5; font-style: italic; margin-bottom: 10px; }
+  .nf { width: 100%; font-family: var(--fb); font-size: 12px; color: var(--text); background: var(--bg); border: .5px solid var(--border2); border-radius: 6px; padding: 8px 10px; resize: vertical; min-height: 64px; line-height: 1.55; outline: none; transition: border-color .2s; }
+  .nf:focus { border-color: var(--gold); }
+  .nf::placeholder { color: var(--text3); font-style: normal; }
+
+  .na { display: flex; align-items: center; justify-content: space-between; margin-top: 1.75rem; padding-top: 1.25rem; border-top: .5px solid var(--sb); }
+  .btn { font-family: var(--fb); font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; padding: 11px 22px; border-radius: 6px; cursor: pointer; transition: all .2s; border: .5px solid var(--border2); background: transparent; color: var(--text); }
+  .btn:hover { background: var(--bg2); }
+  .btn:disabled { opacity: .3; cursor: default; pointer-events: none; }
+  .btng { background: var(--gold); border-color: var(--gold); color: #fff; }
+  .btng:hover { background: var(--gold-light); border-color: var(--gold-light); }
+
+  #rp { display: none; }
+  .rh { text-align: center; padding: 2.5rem 0 1.75rem; border-bottom: 1px solid var(--sb); margin-bottom: 1.75rem; }
+  .rh .bm { font-size: 10px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+  .rh h2 { font-family: var(--fd); font-size: 34px; font-weight: 600; }
+  .rh .rs { font-size: 13px; color: var(--text2); margin-top: 8px; }
+  .rsec { margin-bottom: 1.75rem; }
+  .rsec .rt { font-size: 10px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); border-bottom: .5px solid var(--sb); padding-bottom: 7px; margin-bottom: 14px; }
+  .rrows { display: flex; flex-direction: column; gap: 12px; }
+  .rrow { display: grid; grid-template-columns: 190px 1fr; gap: 14px; font-size: 13px; line-height: 1.6; align-items: start; }
+  @media (max-width: 600px) { .rrow { grid-template-columns: 1fr; gap: 3px; } }
+  .rrl { color: var(--text2); font-weight: 500; font-size: 12px; }
+  .rrv { color: var(--text); }
+  .rrv.empty { color: var(--text3); font-style: italic; }
+  .ra { display: flex; gap: 12px; justify-content: center; margin-top: 2rem; flex-wrap: wrap; }
+
+  .foot { text-align: center; margin-top: 3rem; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--text3); }
+  .foot span { color: var(--gold); }
+
+  @media print {
+    .nt, .cb, .hd, .ra, .foot, .na { display: none !important; }
+    body { background: white; color: black; }
+    .rh { padding-top: 1rem; }
+    .wrap { padding: 0; }
+    #sw { display: none !important; }
+    #rp { display: block !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hd" id="hd">
+    <div><h1>Clarity Consultation</h1><div class="bs">LuxeCraft Consulting &nbsp;·&nbsp; Discovery Call Guide</div></div>
+    <div class="pw"><div class="pl" id="pl">Step 1 of 7</div><div class="pt"><div class="pf" id="pf" style="width:14%"></div></div></div>
+  </div>
+
+  <div class="cb" id="cb">
+    <label for="cn">Client</label>
+    <input type="text" id="cn" placeholder="Enter client name or company..." />
+  </div>
+
+  <nav class="nt" id="nt">
+    <button class="active" data-tab="0">Welcome<span class="td"></span></button>
+    <button data-tab="1">Their Business<span class="td"></span></button>
+    <button data-tab="2">JobTread Usage<span class="td"></span></button>
+    <button data-tab="3">Pain &amp; Goals<span class="td"></span></button>
+    <button data-tab="4">Current State<span class="td"></span></button>
+    <button data-tab="5">What I Do<span class="td"></span></button>
+    <button data-tab="6">Close<span class="td"></span></button>
+  </nav>
+
+  <div id="sw">
+
+    <div class="sp active" data-section="0">
+      <div class="sh"><div class="sn">01</div><div class="sm"><div class="st">Welcome &amp; Set the Frame</div><div class="sti">5 minutes</div><div class="sd">Warm them up, establish the agenda, and make them feel like this is a high-value use of their time — not a sales pitch.</div></div></div>
+      <div class="tp">
+        <div class="tpl">Your opening script</div>
+        <ul>
+          <li>Thank them for making time. "I know you're running a business — I don't take this lightly."</li>
+          <li>Set the frame: "This isn't a pitch — it's a conversation. I'm going to ask you some real questions about how your business runs, and we'll figure out together if what I do is a fit."</li>
+          <li>Let them know the format: "We'll spend most of our time on your world. I'll save a few minutes at the end to share how I typically work."</li>
+          <li>Confirm time: "You've got about [X] minutes? Perfect — let's dig in."</li>
+        </ul>
+      </div>
+      <div class="qg">
+        <div class="qc full"><div class="ql">Opening question</div><div class="qt">"Before we get into anything — what made you say yes to this call today?"</div><textarea class="nf" id="n-0-0" placeholder="Note their immediate answer — this tells you everything about urgency and mindset..." rows="3"></textarea></div>
+        <div class="qc full"><div class="ql">First impression</div><div class="qt">How did they show up? Energy, prepared, skeptical, eager?</div><textarea class="nf" id="n-0-1" placeholder="Note tone, energy, how they came in..." rows="2"></textarea></div>
+      </div>
+      <div class="na"><button class="btn" disabled>← Back</button><button class="btn btng" onclick="go(1)">Next →</button></div>
+    </div>
+
+    <div class="sp" data-section="1">
+      <div class="sh"><div class="sn">02</div><div class="sm"><div class="st">Their Business</div><div class="sti">10 minutes</div><div class="sd">Build rapport and get a clear picture of who they are, what they build, and where they operate. Listen more than you talk.</div></div></div>
+      <div class="qg">
+        <div class="qc full"><div class="ql">The business</div><div class="qt">"Tell me a little about your business — what do you do?"</div><textarea class="nf" id="n-1-0" placeholder="Business overview, how they describe themselves..." rows="3"></textarea></div>
+        <div class="qc"><div class="ql">Location</div><div class="qt">"Where are you located? Are you working locally, regionally, or broader?"</div><textarea class="nf" id="n-1-1" placeholder="City, region, market area they serve..." rows="3"></textarea></div>
+        <div class="qc"><div class="ql">Team size</div><div class="qt">"What is the size of your team right now?"</div><textarea class="nf" id="n-1-2" placeholder="Headcount, office vs field, subs vs employees..." rows="3"></textarea></div>
+        <div class="qc"><div class="ql">What they build &amp; for who</div><div class="qt">"What do you build, and who do you build it for?"</div><textarea class="nf" id="n-1-3" placeholder="Project types, client profile, niche..." rows="3"></textarea></div>
+        <div class="qc"><div class="ql">Size &amp; scale</div><div class="qt">"How many projects are you running at once? What's the typical project size?"</div><textarea class="nf" id="n-1-4" placeholder="Volume, avg project value, revenue range..." rows="3"></textarea></div>
+        <div class="qc"><div class="ql">Contract type</div><div class="qt">"How do you structure your contracts — cost plus, fixed price, time and materials, or a mix?"</div><textarea class="nf" id="n-1-5" placeholder="Primary contract structure, how they price their work..." rows="3"></textarea></div>
+      </div>
+      <div class="na"><button class="btn" onclick="go(0)">← Back</button><button class="btn btng" onclick="go(2)">Next →</button></div>
+    </div>
+
+    <div class="sp" data-section="2">
+      <div class="sh"><div class="sn">03</div><div class="sm"><div class="st">JobTread Usage</div><div class="sti">10 minutes</div><div class="sd">Understand where they are in JobTread — how long they've been in it, what they're actually using, and where the gaps are. This shapes everything you recommend.</div></div></div>
+      <div class="qg">
+        <div class="qc full"><div class="ql">How long in JobTread</div><div class="qt">"How long have you been using JobTread?"</div><textarea class="nf" id="n-2-0" placeholder="When they started, how they found it, who set it up..." rows="3"></textarea></div>
+        <div class="qc full"><div class="ql">What they're using</div><div class="qt">"At a high level, what pieces of JobTread are you actually using right now?"</div><textarea class="nf" id="n-2-1" placeholder="Estimating, budgets, scheduling, customer portal, docs, change orders, selections — what's live vs untouched..." rows="4"></textarea></div>
+        <div class="qc full"><div class="ql">Major gaps &amp; inefficiencies</div><div class="qt">"Where are your major gaps or inefficiencies inside JobTread? What's not working the way you need it to?"</div><textarea class="nf" id="n-2-2" placeholder="Features turned on but unused, workarounds built, frustrations with setup..." rows="4"></textarea></div>
+      </div>
+      <div class="na"><button class="btn" onclick="go(1)">← Back</button><button class="btn btng" onclick="go(3)">Next →</button></div>
+    </div>
+
+    <div class="sp" data-section="3">
+      <div class="sh"><div class="sn">04</div><div class="sm"><div class="st">Pain &amp; Goals</div><div class="sti">10 minutes</div><div class="sd">This is the core of the call. Ask the real questions. Let them vent. Listen for the gap between where they are and where they want to be.</div></div></div>
+      <div class="qg">
+        <div class="qc full"><div class="ql">The big pain</div><div class="qt">"What's your biggest pain right now — inside or outside of JobTread?"</div><textarea class="nf" id="n-3-0" placeholder="Note their exact words — these become your close..." rows="3"></textarea></div>
+        <div class="qc"><div class="ql">Where things fall apart</div><div class="qt">"Where do things tend to fall apart? Field, office, handoffs between the two?"</div><textarea class="nf" id="n-3-1" placeholder="Communication gaps, rework, missed steps, dropped balls..." rows="3"></textarea></div>
+        <div class="qc"><div class="ql">Team buy-in</div><div class="qt">"Is your team actually using JobTread consistently, or is it more you than them?"</div><textarea class="nf" id="n-3-2" placeholder="Who's in it, who's not, what's driving the resistance..." rows="3"></textarea></div>
+        <div class="qc full"><div class="ql">Their ideal state</div><div class="qt">"If your operations were running exactly the way you want — what does that actually look like on a Tuesday?"</div><textarea class="nf" id="n-3-3" placeholder="Their vision — this is what you're building toward..." rows="3"></textarea></div>
+        <div class="qc full"><div class="ql">Cost of inaction</div><div class="qt">"What happens if the next 12 months look a lot like the last 12?"</div><textarea class="nf" id="n-3-4" placeholder="Financial, emotional, team, growth impact..." rows="2"></textarea></div>
+      </div>
+      <div class="na"><button class="btn" onclick="go(2)">← Back</button><button class="btn btng" onclick="go(4)">Next →</button></div>
+    </div>
+
+    <div class="sp" data-section="4">
+      <div class="sh"><div class="sn">05</div><div class="sm"><div class="st">Current State Assessment</div><div class="sti">8 minutes</div><div class="sd">Get tactical on their setup, their tech stack, and what they've tried before. This tells you the complexity of the engagement.</div></div></div>
+      <div class="qg">
+        <div class="qc"><div class="ql">How they got set up</div><div class="qt">"How did you get set up in JobTread — did you figure it out yourself, or did someone help configure it?"</div><textarea class="nf" id="n-4-0" placeholder="Self-implemented, JT onboarding, consultant, someone internal..." rows="3"></textarea></div>
+        <div class="qc"><div class="ql">What's working well</div><div class="qt">"What parts of your operation — inside or outside JobTread — are actually working the way you want?"</div><textarea class="nf" id="n-4-1" placeholder="Strengths, bright spots, what they'd want to keep..." rows="3"></textarea></div>
+        <div class="qc full"><div class="ql">Outside systems &amp; tech stack</div><div class="qt">"What else are you running alongside JobTread? Walk me through your current tech stack."</div><textarea class="nf" id="n-4-2" placeholder="QuickBooks, Buildertrend, spreadsheets, Google Drive, Loom, Slack, CoConstruct, any other tools they're juggling..." rows="4"></textarea></div>
+        <div class="qc full"><div class="ql">Previous attempts to fix this</div><div class="qt">"Have you tried to solve this before — hired someone, taken a course, built your own system, tried another platform?"</div><textarea class="nf" id="n-4-3" placeholder="What they tried, what they invested, why it didn't stick..." rows="3"></textarea></div>
+      </div>
+      <div class="na"><button class="btn" onclick="go(3)">← Back</button><button class="btn btng" onclick="go(5)">Next →</button></div>
+    </div>
+
+    <div class="sp" data-section="5">
+      <div class="sh"><div class="sn">06</div><div class="sm"><div class="st">What I Do &amp; How I Work</div><div class="sti">8 minutes</div><div class="sd">Now you talk. Connect everything they told you back to how you solve it. This is a bridge, not a brochure.</div></div></div>
+      <div class="tp">
+        <div class="tpl">How to frame this</div>
+        <ul>
+          <li>Start by reflecting: "Based on what you've shared, here's what I'm hearing..." — mirror their language, not yours.</li>
+          <li>Then: "This is exactly the kind of situation I work with. Let me tell you how I approach it."</li>
+          <li>Intro Phase 0: "I always start with a Discovery &amp; Review — I'm not going to build your system without knowing exactly what's there."</li>
+          <li>Walk through Phase 1 (System Build) and Phase 2 (Legacy Builder) at a high level — outcomes, not features.</li>
+          <li>If relevant: mention the Support Lab as an ongoing resource for the team.</li>
+          <li>Anchor on the result: "My clients stop running on chaos. They run like the premium operation they're capable of being."</li>
+        </ul>
+      </div>
+      <div class="qg">
+        <div class="qc full"><div class="ql">Notes from this conversation</div><div class="qt">What came up as you walked them through what you do? What resonated, what questions did they ask?</div><textarea class="nf" id="n-5-0" placeholder="Their reaction, what landed, what confused them, what they pushed back on, what lit them up..." rows="5"></textarea></div>
+        <div class="qc"><div class="ql">Fit check</div><div class="qt">"Does this feel like what you've been looking for?"</div><textarea class="nf" id="n-5-1" placeholder="Their response, hesitations, excitement level..." rows="3"></textarea></div>
+        <div class="qc"><div class="ql">Questions they raise</div><div class="qt">What do they ask about specifically?</div><textarea class="nf" id="n-5-2" placeholder="Specific questions, objections, concerns they name..." rows="3"></textarea></div>
+      </div>
+      <div class="na"><button class="btn" onclick="go(4)">← Back</button><button class="btn btng" onclick="go(6)">Next →</button></div>
+    </div>
+
+    <div class="sp" data-section="6">
+      <div class="sh"><div class="sn">07</div><div class="sm"><div class="st">The Close</div><div class="sti">5 minutes</div><div class="sd">Clear, confident, no hedging. You know if this is a fit. Ask for the next step directly.</div></div></div>
+      <div class="tp">
+        <div class="tpl">Closing language</div>
+        <ul>
+          <li>Summarize what you heard: "You told me [pain point]. That's fixable. Here's what I'd recommend."</li>
+          <li>Name the engagement: "I'd like to start with a Phase 0 Discovery &amp; Review. At the end you'll have a complete picture of where your system stands and a roadmap for what to build."</li>
+          <li>Ask directly: "Does that feel like the right place to start?"</li>
+          <li>If they hesitate: "What would you need to feel confident moving forward?"</li>
+          <li>If it's not a fit: "I want to be straight with you — I don't think this is the right time. Here's why, and here's what I'd do instead."</li>
+        </ul>
+      </div>
+      <div class="qg">
+        <div class="qc full"><div class="ql">Recommended engagement</div><div class="qt">Which service is the right fit based on what you heard?</div><textarea class="nf" id="n-6-0" placeholder="Phase 0, Phase 1, Phase 2, Support Lab, not a fit right now..." rows="2"></textarea></div>
+        <div class="qc"><div class="ql">Their decision</div><div class="qt">How did they respond to the close?</div><textarea class="nf" id="n-6-1" placeholder="Yes, needs to think, follow-up call needed, not now, not a fit..." rows="3"></textarea></div>
+        <div class="qc"><div class="ql">Objections raised</div><div class="qt">What held them back, if anything?</div><textarea class="nf" id="n-6-2" placeholder="Price, timing, internal buy-in, wants to think about it..." rows="3"></textarea></div>
+        <div class="qc full"><div class="ql">Agreed next step</div><div class="qt">What did you commit to before hanging up?</div><textarea class="nf" id="n-6-3" placeholder="Proposal sent, follow-up call scheduled, contract signed, info requested..." rows="2"></textarea></div>
+      </div>
+      <div class="na"><button class="btn" onclick="go(5)">← Back</button><button class="btn btng" onclick="genReport()">Generate Call Report →</button></div>
+    </div>
+
+  </div>
+
+  <div id="rp">
+    <div class="rh"><div class="bm">LuxeCraft Consulting</div><h2>Clarity Consultation Summary</h2><div class="rs" id="rsub"></div></div>
+    <div class="rsec"><div class="rt">Client overview</div><div class="rrows" id="r-overview"></div></div>
+    <div class="rsec"><div class="rt">Business profile</div><div class="rrows" id="r-biz"></div></div>
+    <div class="rsec"><div class="rt">JobTread usage</div><div class="rrows" id="r-jt"></div></div>
+    <div class="rsec"><div class="rt">Pain points &amp; goals</div><div class="rrows" id="r-pain"></div></div>
+    <div class="rsec"><div class="rt">Current state</div><div class="rrows" id="r-current"></div></div>
+    <div class="rsec"><div class="rt">Outcome &amp; next steps</div><div class="rrows" id="r-outcome"></div></div>
+    <div class="ra">
+      <button class="btn" onclick="backToConsult()">← Back to Notes</button>
+      <button class="btn btng" onclick="copyReport()">Copy Report Text</button>
+      <button class="btn btng" onclick="window.print()">Print / Save PDF</button>
+    </div>
+  </div>
+
+  <div class="foot"><span>LuxeCraft Consulting</span> &nbsp;·&nbsp; Clarity Consultation Guide</div>
+</div>
+
+<script>
+  let cur = 0; const total = 7;
+  function go(n) {
+    document.querySelectorAll('.sp').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nt button').forEach(t => t.classList.remove('active'));
+    const panel = document.querySelector('[data-section="' + n + '"]');
+    const tab = document.querySelector('[data-tab="' + n + '"]');
+    if (panel) panel.classList.add('active');
+    if (tab) tab.classList.add('active');
+    cur = n;
+    const pct = Math.round(((n + 1) / total) * 100);
+    document.getElementById('pf').style.width = pct + '%';
+    document.getElementById('pl').textContent = 'Step ' + (n + 1) + ' of ' + total;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  document.querySelectorAll('.nt button').forEach(tab => { tab.addEventListener('click', () => go(parseInt(tab.dataset.tab))); });
+  document.querySelectorAll('.nf').forEach(field => {
+    field.addEventListener('input', () => {
+      const ti = parseInt(field.id.split('-')[1]);
+      const tab = document.querySelector('[data-tab="' + ti + '"]');
+      if (tab) { const has = Array.from(document.querySelectorAll('[id^="n-' + ti + '-"]')).some(f => f.value.trim().length > 0); tab.classList.toggle('hn', has); }
+    });
+  });
+  function gv(id) { const e = document.getElementById(id); return e ? e.value.trim() : ''; }
+  function row(label, val) { const empty = !val; return '<div class="rrow"><div class="rrl">' + label + '</div><div class="rrv' + (empty ? ' empty' : '') + '">' + (val || 'Not captured') + '</div></div>'; }
+  function genReport() {
+    const name = document.getElementById('cn').value.trim() || 'Prospective Client';
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    document.getElementById('rsub').textContent = name + ' · ' + date;
+    document.getElementById('r-overview').innerHTML = row('Client / Company', name) + row('Call Date', date) + row('Opening intent', gv('n-0-0')) + row('First impression', gv('n-0-1'));
+    document.getElementById('r-biz').innerHTML = row('What they do', gv('n-1-0')) + row('Location', gv('n-1-1')) + row('Team size', gv('n-1-2')) + row('What they build & for who', gv('n-1-3')) + row('Size & scale', gv('n-1-4')) + row('Contract type', gv('n-1-5'));
+    document.getElementById('r-jt').innerHTML = row('Time in JobTread', gv('n-2-0')) + row("What they're using", gv('n-2-1')) + row('Major gaps & inefficiencies', gv('n-2-2'));
+    document.getElementById('r-pain').innerHTML = row('Biggest pain', gv('n-3-0')) + row('Where things fall apart', gv('n-3-1')) + row('Team buy-in', gv('n-3-2')) + row('Ideal state', gv('n-3-3')) + row('Cost of inaction', gv('n-3-4'));
+    document.getElementById('r-current').innerHTML = row('How they got set up', gv('n-4-0')) + row("What's working well", gv('n-4-1')) + row('Tech stack', gv('n-4-2')) + row('Previous attempts', gv('n-4-3'));
+    document.getElementById('r-outcome').innerHTML = row('Conversation notes', gv('n-5-0')) + row('Fit check response', gv('n-5-1')) + row('Questions raised', gv('n-5-2')) + row('Recommended engagement', gv('n-6-0')) + row('Their decision', gv('n-6-1')) + row('Objections', gv('n-6-2')) + row('Agreed next step', gv('n-6-3'));
+    document.getElementById('sw').style.display = 'none'; document.getElementById('nt').style.display = 'none'; document.getElementById('cb').style.display = 'none'; document.getElementById('hd').style.display = 'none'; document.getElementById('rp').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function backToConsult() { document.getElementById('rp').style.display = 'none'; document.getElementById('sw').style.display = 'block'; document.getElementById('nt').style.display = 'flex'; document.getElementById('cb').style.display = 'flex'; document.getElementById('hd').style.display = 'flex'; go(6); }
+  function copyReport() {
+    const name = document.getElementById('cn').value.trim() || 'Prospective Client';
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const lines = ['CLARITY CONSULTATION SUMMARY — LuxeCraft Consulting', name + ' · ' + date, '', 'CLIENT OVERVIEW', 'Client / Company: ' + name, 'Call Date: ' + date, 'Opening intent: ' + (gv('n-0-0') || 'Not captured'), 'First impression: ' + (gv('n-0-1') || 'Not captured'), '', 'BUSINESS PROFILE', 'What they do: ' + (gv('n-1-0') || 'Not captured'), 'Location: ' + (gv('n-1-1') || 'Not captured'), 'Team size: ' + (gv('n-1-2') || 'Not captured'), 'What they build & for who: ' + (gv('n-1-3') || 'Not captured'), 'Size & scale: ' + (gv('n-1-4') || 'Not captured'), 'Contract type: ' + (gv('n-1-5') || 'Not captured'), '', 'JOBTREAD USAGE', 'Time in JobTread: ' + (gv('n-2-0') || 'Not captured'), "What they're using: " + (gv('n-2-1') || 'Not captured'), 'Major gaps & inefficiencies: ' + (gv('n-2-2') || 'Not captured'), '', 'PAIN POINTS & GOALS', 'Biggest pain: ' + (gv('n-3-0') || 'Not captured'), 'Where things fall apart: ' + (gv('n-3-1') || 'Not captured'), 'Team buy-in: ' + (gv('n-3-2') || 'Not captured'), 'Ideal state: ' + (gv('n-3-3') || 'Not captured'), 'Cost of inaction: ' + (gv('n-3-4') || 'Not captured'), '', 'CURRENT STATE', 'How they got set up: ' + (gv('n-4-0') || 'Not captured'), "What's working well: " + (gv('n-4-1') || 'Not captured'), 'Tech stack: ' + (gv('n-4-2') || 'Not captured'), 'Previous attempts: ' + (gv('n-4-3') || 'Not captured'), '', 'OUTCOME & NEXT STEPS', 'Conversation notes: ' + (gv('n-5-0') || 'Not captured'), 'Fit check response: ' + (gv('n-5-1') || 'Not captured'), 'Questions raised: ' + (gv('n-5-2') || 'Not captured'), 'Recommended engagement: ' + (gv('n-6-0') || 'Not captured'), 'Their decision: ' + (gv('n-6-1') || 'Not captured'), 'Objections: ' + (gv('n-6-2') || 'Not captured'), 'Agreed next step: ' + (gv('n-6-3') || 'Not captured')];
+    navigator.clipboard.writeText(lines.join('\n')).then(() => { const btn = document.querySelector('.ra .btng'); const orig = btn.textContent; btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = orig, 1800); });
+  }
+</script>
+</body>
+</html>

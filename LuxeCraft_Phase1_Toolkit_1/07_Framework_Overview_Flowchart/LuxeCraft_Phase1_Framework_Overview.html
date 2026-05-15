@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LuxeCraft Phase 1 Framework Overview</title>
+<style>
+  /* ============================================
+     LuxeCraft Brand
+     ============================================ */
+  :root {
+    --black: #1A1A1A;
+    --gold: #B8935A;
+    --gold-dark: #8E6F40;
+    --gold-light: #E5D4B0;
+    --cream: #F5F1E8;
+    --cream-dk: #E8E4DC;
+    --cream-vlight: #FBF8F2;
+    --text-gray: #4A4A4A;
+    --soft-gray: #9B9690;
+    --rule-gray: #D8D5CF;
+
+    /* Phase colors (subtle bands) */
+    --phase-discovery: #EAE6DD;
+    --phase-build: #F2E8D4;
+    --phase-rollout: #E8DCC9;
+    --phase-handoff: #E0D5BD;
+
+    /* Cell category colors */
+    --cell-build: #FAF6ED;
+    --cell-rollout: #F5EDD9;
+    --cell-champion: #E8DCC9;
+    --cell-deliverable: #FBF8F2;
+    --cell-invoice: #1A1A1A;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    background: var(--cream-vlight);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: var(--text-gray);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  body {
+    padding: 32px 24px 48px;
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+
+  /* ============================================
+     Header
+     ============================================ */
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--rule-gray);
+  }
+
+  .brand-tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+
+  .title {
+    font-size: 38px;
+    font-weight: 700;
+    color: var(--black);
+    line-height: 1.15;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    font-style: italic;
+    color: var(--text-gray);
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  /* ============================================
+     Controls
+     ============================================ */
+  .controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .controls-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+  }
+
+  .track-toggle {
+    display: flex;
+    background: white;
+    border: 1px solid var(--rule-gray);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .track-btn {
+    background: transparent;
+    border: none;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--text-gray);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border-right: 1px solid var(--rule-gray);
+    font-family: inherit;
+  }
+
+  .track-btn:last-child {
+    border-right: none;
+  }
+
+  .track-btn:hover {
+    background: var(--cream);
+  }
+
+  .track-btn.active {
+    background: var(--black);
+    color: white;
+  }
+
+  .print-btn {
+    background: var(--gold);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.15s ease;
+    font-family: inherit;
+  }
+
+  .print-btn:hover {
+    background: var(--gold-dark);
+  }
+
+  /* ============================================
+     Track Summary Banner
+     ============================================ */
+  .track-summary {
+    background: var(--cream);
+    border-left: 4px solid var(--gold);
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    border-radius: 0 4px 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .track-summary-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--black);
+  }
+
+  .track-summary-tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .track-summary-detail {
+    font-size: 14px;
+    color: var(--text-gray);
+    font-style: italic;
+  }
+
+  .track-summary-score {
+    font-size: 13px;
+    color: var(--text-gray);
+    margin-left: auto;
+  }
+
+  /* ============================================
+     Main Grid (table-based for PDF compat)
+     ============================================ */
+  .grid-wrapper {
+    background: white;
+    border: 1px solid var(--rule-gray);
+    border-radius: 4px;
+    overflow-x: auto;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .framework-grid {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    min-width: 1200px;
+  }
+
+  .framework-grid td,
+  .framework-grid th {
+    padding: 0;
+    margin: 0;
+    vertical-align: middle;
+  }
+
+  /* First column (row labels) is wider */
+  .framework-grid col.label-col {
+    width: 160px;
+  }
+
+  /* Phase cell row */
+  .phase-cell {
+    padding: 8px 6px;
+    text-align: center;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--gold-dark);
+    background: var(--phase-discovery);
+    border-right: 1px solid white;
+    border-bottom: 1px solid var(--rule-gray);
+  }
+
+  .phase-discovery { background: var(--phase-discovery); }
+  .phase-build { background: var(--phase-build); }
+  .phase-rollout { background: var(--phase-rollout); }
+  .phase-handoff { background: var(--phase-handoff); }
+
+  /* Week header row */
+  .week-header {
+    background: var(--black);
+    color: white;
+    padding: 10px 6px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    border-right: 1px solid #2a2a2a;
+  }
+
+  .week-header.empty {
+    background: var(--black);
+  }
+
+  .week-header-num {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 2px;
+    display: block;
+  }
+
+  .week-header-label {
+    font-size: 9px;
+    opacity: 0.7;
+    letter-spacing: 0.1em;
+    display: block;
+  }
+
+  /* Row label cell */
+  .row-label {
+    background: var(--cream);
+    padding: 14px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--gold-dark);
+    text-transform: uppercase;
+    border-right: 1px solid var(--rule-gray);
+    border-bottom: 1px solid var(--rule-gray);
+    vertical-align: middle;
+  }
+
+  .row-label-stack {
+    display: block;
+  }
+
+  .row-label-sub {
+    font-size: 9px;
+    color: var(--soft-gray);
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: normal;
+    margin-top: 4px;
+    font-style: italic;
+    display: block;
+  }
+
+  /* Grid cells */
+  .grid-cell {
+    padding: 10px 6px;
+    font-size: 10px;
+    color: var(--text-gray);
+    border-right: 1px solid var(--rule-gray);
+    border-bottom: 1px solid var(--rule-gray);
+    background: white;
+    line-height: 1.35;
+    position: relative;
+    transition: background 0.15s ease;
+    cursor: default;
+    height: 64px;
+    vertical-align: middle;
+  }
+
+  .grid-cell.has-content {
+    cursor: help;
+  }
+
+  .grid-cell.has-content:hover {
+    background: var(--cream);
+  }
+
+  .grid-cell.empty {
+    background: #FAFAF7;
+    color: var(--soft-gray);
+  }
+
+  /* Cell category colors */
+  .cell-build {
+    background: var(--cell-build);
+  }
+  .cell-build.has-content:hover {
+    background: var(--phase-build);
+  }
+
+  .cell-rollout {
+    background: var(--cell-rollout);
+  }
+  .cell-rollout.has-content:hover {
+    background: var(--phase-rollout);
+  }
+
+  .cell-champion {
+    background: var(--cell-champion);
+  }
+  .cell-champion.has-content:hover {
+    background: var(--gold-light);
+  }
+
+  .cell-deliverable {
+    background: var(--cell-deliverable);
+  }
+  .cell-deliverable.has-content:hover {
+    background: var(--cream);
+  }
+
+  /* Invoice cell — distinct dark style */
+  .cell-invoice {
+    background: var(--black);
+    color: white;
+    text-align: center;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+
+  .cell-title {
+    font-weight: 700;
+    color: var(--black);
+    font-size: 10px;
+    margin-bottom: 3px;
+    line-height: 1.25;
+  }
+
+  .cell-detail {
+    font-size: 9px;
+    color: var(--text-gray);
+    line-height: 1.3;
+  }
+
+  .cell-icon {
+    font-size: 11px;
+    color: var(--gold);
+    margin-bottom: 2px;
+  }
+
+  /* Tooltip */
+  .tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--black);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.5;
+    width: 240px;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    text-align: left;
+  }
+
+  .tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--black);
+  }
+
+  .tooltip-title {
+    font-weight: 700;
+    color: var(--gold-light);
+    margin-bottom: 4px;
+    letter-spacing: 0.02em;
+    font-size: 11px;
+  }
+
+  .grid-cell:hover .tooltip {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Position tooltips for last few cells to avoid right-edge overflow */
+  .grid-cell:nth-child(-n+3) .tooltip {
+    left: 0;
+    transform: translateX(0);
+  }
+  .grid-cell:nth-child(-n+3) .tooltip::after {
+    left: 24px;
+    transform: translateX(0);
+  }
+  .grid-cell:nth-last-child(-n+3) .tooltip {
+    left: auto;
+    right: 0;
+    transform: translateX(0);
+  }
+  .grid-cell:nth-last-child(-n+3) .tooltip::after {
+    left: auto;
+    right: 24px;
+    transform: translateX(0);
+  }
+
+  /* ============================================
+     Below-grid sections
+     ============================================ */
+  .section-row {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .section-row > * {
+    flex: 1 1 0;
+  }
+
+  .section-row-three {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .section-row-three > * {
+    flex: 1 1 0;
+  }
+
+  .panel {
+    background: white;
+    border: 1px solid var(--rule-gray);
+    border-radius: 4px;
+    padding: 20px 22px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .panel-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--gold);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .panel-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--gold);
+    border-bottom-width: 2px;
+    display: inline-block;
+  }
+
+  .panel-body {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text-gray);
+    margin-bottom: 12px;
+  }
+
+  /* Rollout Playbook 4-step */
+  .playbook-steps {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .playbook-step {
+    flex: 1 1 0;
+    background: var(--cream);
+    border-left: 3px solid var(--gold);
+    padding: 10px 12px;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .playbook-step-num {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+
+  .playbook-step-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 4px;
+  }
+
+  .playbook-step-detail {
+    font-size: 10px;
+    color: var(--text-gray);
+    line-height: 1.4;
+  }
+
+  /* Toolkit list */
+  .toolkit-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+  }
+
+  .toolkit-item {
+    flex: 1 1 calc(50% - 16px);
+    min-width: 200px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px dotted var(--rule-gray);
+  }
+
+  /* Single column variant for the Champion call panel */
+  .toolkit-list.single-col .toolkit-item {
+    flex: 1 1 100%;
+  }
+
+  /* Vertical workflow toolkit */
+  .toolkit-workflow {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .workflow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: var(--cream-vlight);
+    border-left: 3px solid var(--gold);
+    padding: 12px 14px;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .workflow-step-marker {
+    background: var(--gold);
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .workflow-step-content {
+    flex: 1;
+  }
+
+  .workflow-step-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 2px;
+    line-height: 1.3;
+  }
+
+  .workflow-step-when {
+    font-size: 10px;
+    color: var(--gold-dark);
+    font-style: italic;
+    margin-bottom: 4px;
+    letter-spacing: 0.02em;
+  }
+
+  .workflow-step-purpose {
+    font-size: 11px;
+    color: var(--text-gray);
+    line-height: 1.4;
+  }
+
+  .workflow-arrow {
+    text-align: center;
+    color: var(--gold);
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 4px 0;
+  }
+
+  .toolkit-item:last-child {
+    border-bottom: none;
+  }
+
+  .toolkit-num {
+    background: var(--gold);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .toolkit-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .toolkit-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 1px;
+  }
+
+  .toolkit-when {
+    font-size: 10px;
+    color: var(--soft-gray);
+    font-style: italic;
+  }
+
+  /* Bookends panel */
+  .bookends {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    align-items: stretch;
+    margin-bottom: 24px;
+    width: 100%;
+  }
+
+  .bookend-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold);
+    font-size: 22px;
+    font-weight: 700;
+    flex: 0 0 auto;
+    padding: 0 4px;
+  }
+
+  .bookend {
+    flex: 1 1 0;
+    background: white;
+    border: 1px solid var(--rule-gray);
+    border-radius: 4px;
+    padding: 16px 18px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .bookend.current {
+    background: var(--black);
+    color: white;
+    border-color: var(--black);
+  }
+
+  .bookend-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+
+  .bookend.current .bookend-tag {
+    color: var(--gold-light);
+  }
+
+  .bookend-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 4px;
+  }
+
+  .bookend.current .bookend-title {
+    color: white;
+  }
+
+  .bookend-sub {
+    font-size: 11px;
+    color: var(--text-gray);
+    font-style: italic;
+  }
+
+  .bookend.current .bookend-sub {
+    color: rgba(255,255,255,0.75);
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    font-size: 10px;
+    color: var(--text-gray);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend-swatch {
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--rule-gray);
+    border-radius: 2px;
+  }
+
+  /* Footer */
+  .doc-footer {
+    text-align: center;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule-gray);
+    font-size: 11px;
+    color: var(--soft-gray);
+    letter-spacing: 0.08em;
+  }
+
+  .doc-footer .tagline {
+    font-style: italic;
+    color: var(--gold);
+    font-size: 13px;
+    letter-spacing: normal;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  /* ============================================
+     Print styles
+     ============================================ */
+  @media print {
+    @page {
+      size: 17in 11in;
+      margin: 0.4in;
+    }
+
+    body {
+      background: white;
+      padding: 0;
+      max-width: 100%;
+    }
+
+    .controls {
+      display: none;
+    }
+
+    .grid-wrapper {
+      box-shadow: none;
+      overflow: visible;
+    }
+
+    .framework-grid {
+      min-width: 100%;
+    }
+
+    .panel {
+      box-shadow: none;
+      page-break-inside: avoid;
+    }
+
+    .bookend {
+      box-shadow: none;
+    }
+
+    /* Show all hover states as default */
+    .grid-cell .tooltip {
+      display: none;
+    }
+
+    .header {
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+    }
+
+    .title {
+      font-size: 28px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand-tag">LUXECRAFT CONSULTING</div>
+  <h1 class="title">Phase 1 Implementation Framework</h1>
+  <p class="subtitle">A 13-week engagement that takes a custom home builder or remodeler from signed contract to a trained Success Champion running a fully-adopted JobTread system.</p>
+</div>
+
+<div class="controls">
+  <span class="controls-label">VIEW TRACK</span>
+  <div class="track-toggle">
+    <button class="track-btn" data-track="light">Light</button>
+    <button class="track-btn active" data-track="moderate">Moderate</button>
+    <button class="track-btn" data-track="heavy">Heavy</button>
+  </div>
+  <button class="print-btn" onclick="window.print()">Export to PDF</button>
+</div>
+
+<div class="track-summary" id="trackSummary">
+  <span class="track-summary-tag">Current Track</span>
+  <span class="track-summary-name" id="trackName">Moderate</span>
+  <span class="track-summary-detail" id="trackDetail">4-week build  ·  7-week rollout  ·  1-week handoff</span>
+  <span class="track-summary-score" id="trackScore">Build Complexity Scorecard: 89-139</span>
+</div>
+
+<!-- Bookends: Phase 0 → Phase 1 → Phase 2 -->
+<div class="bookends">
+  <div class="bookend">
+    <div class="bookend-tag">PHASE 0</div>
+    <div class="bookend-title">Discovery &amp; Review</div>
+    <div class="bookend-sub">Build Complexity Scorecard run. Track assigned. Scope confirmed.</div>
+  </div>
+  <div class="bookend-arrow">&rarr;</div>
+  <div class="bookend current">
+    <div class="bookend-tag">PHASE 1</div>
+    <div class="bookend-title">12-Week Implementation</div>
+    <div class="bookend-sub">Build &middot; Rollout &middot; Champion training &middot; Handoff</div>
+  </div>
+  <div class="bookend-arrow">&rarr;</div>
+  <div class="bookend">
+    <div class="bookend-tag">PHASE 2</div>
+    <div class="bookend-title">Support Lab + Legacy Builder</div>
+    <div class="bookend-sub">Ongoing community membership. Phase 2 advisory by request.</div>
+  </div>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item">
+    <div class="legend-swatch" style="background: var(--cell-build)"></div>
+    <span>Build-out phase work</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-swatch" style="background: var(--cell-rollout)"></div>
+    <span>Team rollout phase</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-swatch" style="background: var(--cell-champion)"></div>
+    <span>Champion call</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-swatch" style="background: var(--black)"></div>
+    <span>Milestone invoice</span>
+  </div>
+</div>
+
+<!-- Main Grid -->
+<div class="grid-wrapper">
+  <table class="framework-grid">
+    <colgroup>
+      <col class="label-col">
+      <col><col><col><col><col><col><col><col><col><col><col><col><col>
+    </colgroup>
+    <tbody id="grid"></tbody>
+  </table>
+</div>
+
+<!-- Rollout Playbook -->
+<div class="panel" style="margin-bottom: 24px;">
+  <div class="panel-tag">REPEATABLE PATTERN</div>
+  <h2 class="panel-title">The Rollout Playbook</h2>
+  <p class="panel-body">Every team rollout, regardless of which week or which tool, follows the same four-step pattern. The team learns the rhythm, which makes change predictable.</p>
+  <div class="playbook-steps">
+    <div class="playbook-step">
+      <div class="playbook-step-num">STEP 1</div>
+      <div class="playbook-step-title">Pre-Approval</div>
+      <div class="playbook-step-detail">One week before. Slide deck and Loom sent to leadership and Champion. Approval required on readiness and accuracy before kickoff.</div>
+    </div>
+    <div class="playbook-step">
+      <div class="playbook-step-num">STEP 2</div>
+      <div class="playbook-step-title">Team Kickoff</div>
+      <div class="playbook-step-detail">Day 1 of rollout week. Live Zoom with full team. Champion co-leads. Recorded for absent and reference.</div>
+    </div>
+    <div class="playbook-step">
+      <div class="playbook-step-num">STEP 3</div>
+      <div class="playbook-step-title">Practice Week</div>
+      <div class="playbook-step-detail">Days 2 to 5. Team uses the tool in real work. Champion is first point of contact. Consultant monitors adoption remotely.</div>
+    </div>
+    <div class="playbook-step">
+      <div class="playbook-step-num">STEP 4</div>
+      <div class="playbook-step-title">Adoption Check</div>
+      <div class="playbook-step-detail">End of rollout week. Champion and consultant review who is using it, who is not, what is breaking. Refine before next week.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Toolkit + Champion call structure -->
+<div class="section-row">
+  <div class="panel">
+    <div class="panel-tag">DELIVERABLE TOOLKIT</div>
+    <h2 class="panel-title">The Seven Tools</h2>
+    <p class="panel-body" style="font-size: 12px;">Each tool is built for a specific moment in the engagement. The workflow flows top to bottom from Phase 0 through Phase 1 close.</p>
+    <div class="toolkit-workflow">
+      <div class="workflow-step">
+        <div class="workflow-step-marker">1</div>
+        <div class="workflow-step-content">
+          <div class="workflow-step-name">Build Complexity Scorecard</div>
+          <div class="workflow-step-when">Phase 0  ·  After audit, before Discovery &amp; Review call</div>
+          <div class="workflow-step-purpose">Score the audit, get track recommendation, document the assignment.</div>
+        </div>
+      </div>
+      <div class="workflow-arrow">&darr;</div>
+      <div class="workflow-step">
+        <div class="workflow-step-marker">2</div>
+        <div class="workflow-step-content">
+          <div class="workflow-step-name">Discovery &amp; Review Report</div>
+          <div class="workflow-step-when">Phase 0  ·  Delivered at Discovery &amp; Review call</div>
+          <div class="workflow-step-purpose">Six-tab interactive HTML covering findings, gap analysis, workflow map, team assessment, platform audit, and Phase 1 scope.</div>
+        </div>
+      </div>
+      <div class="workflow-arrow">&darr;</div>
+      <div class="workflow-step">
+        <div class="workflow-step-marker">3</div>
+        <div class="workflow-step-content">
+          <div class="workflow-step-name">Scope Confirmation Templates</div>
+          <div class="workflow-step-when">Week 0  ·  Before kickoff meeting</div>
+          <div class="workflow-step-purpose">Track-specific markdown templates pasted into JobTread custom document, signed by client.</div>
+        </div>
+      </div>
+      <div class="workflow-arrow">&darr;</div>
+      <div class="workflow-step">
+        <div class="workflow-step-marker">4</div>
+        <div class="workflow-step-content">
+          <div class="workflow-step-name">Implementation Roadmap Generator</div>
+          <div class="workflow-step-when">Week 0  ·  Sent to client at kickoff</div>
+          <div class="workflow-step-purpose">Branded vertical roadmap showing all 13 weeks with dates, themes, color-coded categories.</div>
+        </div>
+      </div>
+      <div class="workflow-arrow">&darr;</div>
+      <div class="workflow-step">
+        <div class="workflow-step-marker">5</div>
+        <div class="workflow-step-content">
+          <div class="workflow-step-name">JobTread Schedule CSV Generator</div>
+          <div class="workflow-step-when">Week 0  ·  Imported into JobTread for internal tracking</div>
+          <div class="workflow-step-purpose">Generates importable CSV with parent job, all 13 weekly tasks, 12 Champion sessions, and 3 milestone invoices.</div>
+        </div>
+      </div>
+      <div class="workflow-arrow">&darr;</div>
+      <div class="workflow-step">
+        <div class="workflow-step-marker">6</div>
+        <div class="workflow-step-content">
+          <div class="workflow-step-name">Success Champion Playbook</div>
+          <div class="workflow-step-when">Week 0  ·  Given to Champion at kickoff</div>
+          <div class="workflow-step-purpose">64-page printed booklet. 12 weekly chapters plus 10-tool toolkit appendix. The Champion's permanent reference.</div>
+        </div>
+      </div>
+      <div class="workflow-arrow">&darr;</div>
+      <div class="workflow-step">
+        <div class="workflow-step-marker">7</div>
+        <div class="workflow-step-content">
+          <div class="workflow-step-name">Meeting Recap Skill</div>
+          <div class="workflow-step-when">Every week  ·  After each weekly call</div>
+          <div class="workflow-step-purpose">Branded session recap PDF with notes, action items, and PREP-for-next-week sent to the client.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-tag">WEEKLY 30-MIN CALL</div>
+    <h2 class="panel-title">Champion Session Structure</h2>
+    <p class="panel-body" style="font-size: 12px;">Every Champion call follows the same seven-element structure. Back-to-back with the 1-hour team call, same day.</p>
+    <div class="toolkit-list single-col">
+      <div class="toolkit-item">
+        <div class="toolkit-num">1</div>
+        <div class="toolkit-info">
+          <div class="toolkit-name">Accountability Check</div>
+          <div class="toolkit-when">What they committed to last week and how it went</div>
+        </div>
+      </div>
+      <div class="toolkit-item">
+        <div class="toolkit-num">2</div>
+        <div class="toolkit-info">
+          <div class="toolkit-name">Review the Playbook Chapter</div>
+          <div class="toolkit-when">What landed, what did not, questions surfaced</div>
+        </div>
+      </div>
+      <div class="toolkit-item">
+        <div class="toolkit-num">3</div>
+        <div class="toolkit-info">
+          <div class="toolkit-name">Reflection Questions</div>
+          <div class="toolkit-when">Listen to what is happening on the team</div>
+        </div>
+      </div>
+      <div class="toolkit-item">
+        <div class="toolkit-num">4</div>
+        <div class="toolkit-info">
+          <div class="toolkit-name">Talking Points</div>
+          <div class="toolkit-when">Leadership coaching content for the week</div>
+        </div>
+      </div>
+      <div class="toolkit-item">
+        <div class="toolkit-num">5</div>
+        <div class="toolkit-info">
+          <div class="toolkit-name">Watch-Fors</div>
+          <div class="toolkit-when">Specific behaviors to notice in the team</div>
+        </div>
+      </div>
+      <div class="toolkit-item">
+        <div class="toolkit-num">6</div>
+        <div class="toolkit-info">
+          <div class="toolkit-name">Self-Sufficiency Drill</div>
+          <div class="toolkit-when">Scenario or question they work through alone</div>
+        </div>
+      </div>
+      <div class="toolkit-item">
+        <div class="toolkit-num">7</div>
+        <div class="toolkit-info">
+          <div class="toolkit-name">Capture the Commitment</div>
+          <div class="toolkit-when">What they will commit to this week</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Three principles + Phase 0 + Phase 2 detail -->
+<div class="section-row-three">
+  <div class="panel">
+    <div class="panel-tag">PRINCIPLE 01</div>
+    <h2 class="panel-title">Lowest Friction First</h2>
+    <p class="panel-body" style="font-size: 12px;">Team rollout starts with tools that have no dependencies and the lowest cognitive load. Habit-building first. Heavy tools layer on once the daily JobTread habit is real. Sequence is dependency-driven, not friction-driven.</p>
+  </div>
+  <div class="panel">
+    <div class="panel-tag">PRINCIPLE 02</div>
+    <h2 class="panel-title">Champion-Led, Not Consultant-Led</h2>
+    <p class="panel-body" style="font-size: 12px;">The consultant is temporary. The Champion is permanent. Every team rollout is co-led by the Champion. By Week 12, the Champion runs the system. We have built a leader, not just configured a tool.</p>
+  </div>
+  <div class="panel">
+    <div class="panel-tag">PRINCIPLE 03</div>
+    <h2 class="panel-title">Repeatable Playbook, Every Time</h2>
+    <p class="panel-body" style="font-size: 12px;">Every team rollout follows the same 4-step pattern. Every Champion call follows the same 7 elements. Every engagement starts with the same scorecard. Repetition is the point. Predictability is what makes adoption stick.</p>
+  </div>
+</div>
+
+<div class="doc-footer">
+  <span class="tagline">Let's build something that lasts.</span>
+  LUXECRAFT CONSULTING &middot; PHASE 1 IMPLEMENTATION FRAMEWORK &middot; LUXECRAFTCONSULTING.COM
+</div>
+
+<script>
+// =============================================================================
+// FRAMEWORK DATA — Three tracks, week-by-week
+// =============================================================================
+
+const TRACKS = {
+  light: {
+    name: 'Light',
+    detail: '2-week build  ·  9-week rollout  ·  1-week handoff',
+    score: 'Build Complexity Scorecard: 38-88',
+    invoiceWeeks: [1, 5, 9],
+    weeks: [
+      // W0 - Discovery
+      { phase: 'discovery', build: 'Discovery + scope confirmation, Champion identified, kickoff', rollout: '', champion: 'SC: Stepping into the Role', deliverable: 'Scope Confirmation, Implementation Roadmap, Success Champion Playbook' },
+      // W1 - Build
+      { phase: 'build', build: 'Cost catalog cleanup, customer pipeline, user roles, doc templates', rollout: '', champion: 'SC: Owning Your Own Learning', deliverable: '' },
+      // W2 - Build wraps
+      { phase: 'build', build: 'Build wraps: budget/schedule templates verified, customer/job data loaded, Champion ready', rollout: '', champion: 'SC: Holding the Team to New Habits', deliverable: '' },
+      // W3 - Tier 1 rollout
+      { phase: 'rollout', build: '', rollout: 'Messaging, to-dos, daily logs go live (Tier 1 habits)', champion: 'SC: Reading the Room', deliverable: '' },
+      // W4 - Budgets
+      { phase: 'rollout', build: '', rollout: 'Budgets go live (the heartbeat)', champion: 'SC: Becoming the Question Person', deliverable: '' },
+      // W5 - Plans + Schedules
+      { phase: 'rollout', build: '', rollout: 'Plans and schedules', champion: 'SC: Working with the Heartbeat', deliverable: '' },
+      // W6 - Time tracking
+      { phase: 'rollout', build: '', rollout: 'Time tracking', champion: 'SC: Connecting the Dots', deliverable: '' },
+      // W7 - Selections
+      { phase: 'rollout', build: '', rollout: 'Selections and allowances', champion: 'SC: Closing the Loop', deliverable: '' },
+      // W8 - Documents/Proposals
+      { phase: 'rollout', build: '', rollout: 'Documents, files, proposals, contracts', champion: 'SC: Carrying the Customer Experience', deliverable: '' },
+      // W9 - Financial closure
+      { phase: 'rollout', build: '', rollout: 'Change orders, POs, invoicing, cost tracking', champion: 'SC: Standing Behind the Process', deliverable: '' },
+      // W10 - Buffer/refinement
+      { phase: 'rollout', build: '', rollout: 'Buffer + refinement (catch-up, 1:1 reinforcement)', champion: 'SC: Closing the Books with Confidence', deliverable: '' },
+      // W11 - Adoption deepening
+      { phase: 'rollout', build: '', rollout: 'Adoption deepening, address holdouts, dashboards prep', champion: 'SC: Closing the Books with Confidence', deliverable: '' },
+      // W12 - Handoff
+      { phase: 'handoff', build: '', rollout: 'Dashboards, KPIs, Support Lab onboarding', champion: 'SC: Carrying It Forward', deliverable: '60/90-day plan, Support Lab access' },
+    ],
+  },
+
+  moderate: {
+    name: 'Moderate',
+    detail: '4-week build  ·  7-week rollout  ·  1-week handoff',
+    score: 'Build Complexity Scorecard: 89-139',
+    invoiceWeeks: [1, 5, 9],
+    weeks: [
+      { phase: 'discovery', build: 'Discovery + scope confirmation, Champion identified, kickoff', rollout: '', champion: 'SC: Stepping into the Role', deliverable: 'Scope Confirmation, Implementation Roadmap, Success Champion Playbook' },
+      { phase: 'build', build: 'Cost catalog construction, customer pipeline build-out, user roles, document templates', rollout: '', champion: 'SC: Owning Your Own Learning', deliverable: '' },
+      { phase: 'build', build: 'Budget templates with formulas, plans tab, parameter library', rollout: '', champion: 'SC: Holding the Team to New Habits', deliverable: '' },
+      { phase: 'build', build: 'Schedule templates, selections catalog, allowances, packages', rollout: '', champion: 'SC: Reading the Room', deliverable: '' },
+      { phase: 'build', build: 'Customers/jobs loaded, integrations verified, Champion ready', rollout: '', champion: 'SC: Becoming the Question Person', deliverable: '' },
+      { phase: 'rollout', build: '', rollout: 'Messaging, to-dos, daily logs go live (Tier 1 habits)', champion: 'SC: Working with the Heartbeat', deliverable: '' },
+      { phase: 'rollout', build: '', rollout: 'Budgets go live (the heartbeat)', champion: 'SC: Connecting the Dots', deliverable: '' },
+      { phase: 'rollout', build: '', rollout: 'Plans and schedules', champion: 'SC: Closing the Loop', deliverable: '' },
+      { phase: 'rollout', build: '', rollout: 'Time tracking', champion: 'SC: Carrying the Customer Experience', deliverable: '' },
+      { phase: 'rollout', build: '', rollout: 'Selections and allowances', champion: 'SC: Standing Behind the Process', deliverable: '' },
+      { phase: 'rollout', build: '', rollout: 'Documents, files, proposals, contracts', champion: 'SC: Standing Behind the Process', deliverable: '' },
+      { phase: 'rollout', build: '', rollout: 'Change orders, POs, invoicing, cost tracking', champion: 'SC: Closing the Books with Confidence', deliverable: '' },
+      { phase: 'handoff', build: '', rollout: 'Dashboards, KPIs, Support Lab onboarding', champion: 'SC: Carrying It Forward', deliverable: '60/90-day plan, Support Lab access' },
+    ],
+  },
+
+  heavy: {
+    name: 'Heavy',
+    detail: '6-week build  ·  5-week rollout  ·  1-week handoff',
+    score: 'Build Complexity Scorecard: 140-190',
+    invoiceWeeks: [1, 5, 9],
+    weeks: [
+      { phase: 'discovery', build: 'Discovery + scope confirmation (Heavy track), Champion bandwidth confirmed, kickoff', rollout: '', champion: 'SC: Stepping into the Role', deliverable: 'Scope Confirmation, Implementation Roadmap, Success Champion Playbook' },
+      { phase: 'build', build: 'Full cost catalog construction from operations data, user roles, account hygiene baseline', rollout: '', champion: 'SC: Owning Your Own Learning', deliverable: '' },
+      { phase: 'build', build: 'Customer pipeline, document template suite, vendor records, cost inboxing', rollout: '', champion: 'SC: Holding the Team to New Habits', deliverable: '' },
+      { phase: 'build', build: 'Budget templates with formulas, cost assemblies, reusable structures', rollout: '', champion: 'SC: Reading the Room', deliverable: '' },
+      { phase: 'build', build: 'Plans tab structure, parameter library tied to budget assemblies', rollout: '', champion: 'SC: Becoming the Question Person', deliverable: '' },
+      { phase: 'build', build: 'Schedule templates, full selections catalog, allowances and packages', rollout: '', champion: 'SC: Working with the Heartbeat', deliverable: '' },
+      { phase: 'build', build: 'Customers/jobs loaded, prior platform migration, integrations, Champion ready', rollout: '', champion: 'SC: Connecting the Dots', deliverable: '' },
+      { phase: 'rollout', build: '', rollout: 'Messaging, to-dos, daily logs go live (Tier 1 habits)', champion: 'SC: Closing the Loop', deliverable: '' },
+      { phase: 'rollout', build: '', rollout: 'Budgets + plans + schedules go live together (heartbeat tools)', champion: 'SC: Carrying the Customer Experience', deliverable: '' },
+      { phase: 'rollout', build: '', rollout: 'Time tracking', champion: 'SC: Standing Behind the Process', deliverable: '' },
+      { phase: 'rollout', build: '', rollout: 'Selections, allowances, proposals, contracts (sales workflow combined)', champion: 'SC: Standing Behind the Process', deliverable: '' },
+      { phase: 'rollout', build: '', rollout: 'Financial closure: change orders, POs, invoicing, cost tracking, documents', champion: 'SC: Closing the Books with Confidence', deliverable: '' },
+      { phase: 'handoff', build: '', rollout: 'Dashboards, KPIs, Support Lab onboarding', champion: 'SC: Carrying It Forward', deliverable: '60/90-day plan, Support Lab access' },
+    ],
+  },
+};
+
+// Tooltip detail content keyed by week phase + content type
+const PHASE_LABELS = {
+  discovery: 'DISCOVERY',
+  build: 'BUILD-OUT PHASE',
+  rollout: 'ROLLOUT PHASE',
+  handoff: 'HANDOFF',
+};
+
+// =============================================================================
+// RENDER
+// =============================================================================
+
+function renderGrid(trackKey) {
+  const track = TRACKS[trackKey];
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+
+  // Update summary banner
+  document.getElementById('trackName').textContent = track.name;
+  document.getElementById('trackDetail').textContent = track.detail;
+  document.getElementById('trackScore').textContent = track.score;
+
+  // ---- Phase band row ----
+  const phaseRow = document.createElement('tr');
+  const phaseLabel = document.createElement('td');
+  phaseLabel.className = 'row-label';
+  phaseLabel.style.background = 'var(--black)';
+  phaseLabel.style.color = 'white';
+  phaseLabel.style.fontSize = '10px';
+  phaseLabel.style.fontWeight = '700';
+  phaseLabel.style.letterSpacing = '0.15em';
+  phaseLabel.textContent = 'PHASE';
+  phaseRow.appendChild(phaseLabel);
+
+  track.weeks.forEach((week) => {
+    const cell = document.createElement('td');
+    cell.className = `phase-cell phase-${week.phase}`;
+    cell.textContent = PHASE_LABELS[week.phase];
+    phaseRow.appendChild(cell);
+  });
+  grid.appendChild(phaseRow);
+
+  // ---- Week header row ----
+  const weekRow = document.createElement('tr');
+  const weekLabel = document.createElement('td');
+  weekLabel.className = 'week-header empty';
+  weekRow.appendChild(weekLabel);
+
+  for (let i = 0; i <= 12; i++) {
+    const cell = document.createElement('td');
+    cell.className = 'week-header';
+    const label = i === 0 ? 'KICKOFF' : (i === 12 ? 'HANDOFF' : '');
+    cell.innerHTML = `<span class="week-header-num">W${i}</span>${label ? `<span class="week-header-label">${label}</span>` : ''}`;
+    weekRow.appendChild(cell);
+  }
+  grid.appendChild(weekRow);
+
+  // ---- Combined Weekly Call row (build-out + team rollout) ----
+  addRow(grid, 'WEEKLY CALL', '1 hour, with team', track.weeks, (w, idx) => {
+    // Use rollout content if present, otherwise build content
+    const content = w.rollout || w.build;
+    if (!content) return null;
+    // Pick class based on phase
+    const cls = w.rollout ? 'cell-rollout' : 'cell-build';
+    return {
+      cls: cls,
+      title: w.phase === 'discovery' ? 'Discovery + Kickoff' :
+             w.phase === 'handoff' ? 'Handoff' :
+             w.rollout ? 'Tool Rollout' : `Build Week ${idx}`,
+      detail: content,
+    };
+  });
+
+  // ---- Champion Track row ----
+  addRow(grid, 'CHAMPION CALL', '30 min, weekly', track.weeks, (w, idx) => {
+    if (!w.champion) return null;
+    return {
+      cls: 'cell-champion',
+      title: '30-min session',
+      detail: w.champion,
+    };
+  });
+
+  // ---- Invoices row ----
+  addRow(grid, 'INVOICES', 'Milestone billing', track.weeks, (w, idx) => {
+    if (track.invoiceWeeks.includes(idx)) {
+      const num = track.invoiceWeeks.indexOf(idx) + 1;
+      return {
+        cls: 'cell-invoice',
+        title: `INVOICE #${num}`,
+        detail: '',
+        isInvoice: true,
+      };
+    }
+    return null;
+  });
+}
+
+function addRow(grid, label, sublabel, weeks, getCellData) {
+  const row = document.createElement('tr');
+
+  // Row label
+  const labelCell = document.createElement('td');
+  labelCell.className = 'row-label';
+  labelCell.innerHTML = `<span class="row-label-stack">${label}${sublabel ? `<span class="row-label-sub">${sublabel}</span>` : ''}</span>`;
+  row.appendChild(labelCell);
+
+  // Cells for each week
+  weeks.forEach((week, idx) => {
+    const data = getCellData(week, idx);
+    const cell = document.createElement('td');
+
+    if (!data) {
+      cell.className = 'grid-cell empty';
+      cell.innerHTML = '';
+    } else if (data.isInvoice) {
+      cell.className = `grid-cell ${data.cls}`;
+      cell.innerHTML = data.title;
+    } else {
+      cell.className = `grid-cell ${data.cls} has-content`;
+      // Show full text in cell (no truncation since the cells now have variable height)
+      const truncated = data.detail.length > 60 ? data.detail.substring(0, 57) + '...' : data.detail;
+      cell.innerHTML = `
+        <span class="cell-detail">${truncated}</span>
+        <div class="tooltip">
+          <div class="tooltip-title">${data.title} &middot; W${idx}</div>
+          ${data.detail}
+        </div>
+      `;
+    }
+
+    row.appendChild(cell);
+  });
+
+  grid.appendChild(row);
+}
+
+// =============================================================================
+// TRACK SELECTION
+// =============================================================================
+
+Array.prototype.slice.call(document.querySelectorAll('.track-btn')).forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    Array.prototype.slice.call(document.querySelectorAll('.track-btn')).forEach(function(b) {
+      b.classList.remove('active');
+    });
+    btn.classList.add('active');
+    renderGrid(btn.dataset.track);
+  });
+});
+
+// Initial render
+renderGrid('moderate');
+
+</script>
+
+</body>
+</html>

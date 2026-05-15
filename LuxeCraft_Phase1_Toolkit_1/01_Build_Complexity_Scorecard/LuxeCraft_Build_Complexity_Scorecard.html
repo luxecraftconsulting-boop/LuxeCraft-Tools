@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LuxeCraft Build Complexity Scorecard</title>
+<style>
+  :root {
+    --black: #1A1A1A;
+    --gold: #B8935A;
+    --gold-dark: #8E6F40;
+    --cream: #F5F1E8;
+    --cream-dark: #E8E4DC;
+    --gray-text: #4A4A4A;
+    --gray-light: #D8D4CC;
+    --white: #FEFCF7;
+    --light: #34D399;
+    --moderate: #FBBF24;
+    --heavy: #EF4444;
+    --shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--cream);
+    color: var(--black);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  .serif { font-family: 'Cormorant Garamond', Georgia, serif; }
+
+  /* Header */
+  header {
+    background: var(--black);
+    color: var(--white);
+    padding: 32px 40px;
+    border-bottom: 4px solid var(--gold);
+  }
+  header h1 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 36px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+  header .tagline {
+    color: var(--gold);
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+  header .subtitle {
+    color: var(--cream-dark);
+    margin-top: 12px;
+    font-size: 15px;
+    max-width: 700px;
+  }
+
+  /* Layout */
+  .container {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px 40px;
+  }
+  @media (max-width: 1100px) {
+    .container { grid-template-columns: 1fr; }
+    .sidebar { position: static !important; }
+  }
+
+  main { min-width: 0; }
+
+  /* Cards */
+  .card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 28px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--cream-dark);
+  }
+  .card h2 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--black);
+    margin-bottom: 6px;
+  }
+  .card .section-tag {
+    display: inline-block;
+    color: var(--gold);
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .card p.intro {
+    color: var(--gray-text);
+    margin-bottom: 18px;
+    font-size: 14px;
+  }
+
+  /* Client info */
+  .field {
+    margin-bottom: 16px;
+  }
+  .field label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gray-text);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .field input, .field textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--gray-light);
+    border-radius: 6px;
+    font-size: 15px;
+    font-family: inherit;
+    background: var(--white);
+    transition: border-color 0.15s;
+  }
+  .field input:focus, .field textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  /* Tier sections */
+  .tier-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+  .tier-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .tier-1 { background: var(--gold); color: var(--white); }
+  .tier-2 { background: var(--cream-dark); color: var(--black); }
+  .tier-3 { background: #EFEBE2; color: var(--gray-text); }
+
+  /* Criterion */
+  .criterion {
+    padding: 18px 0;
+    border-bottom: 1px solid var(--cream-dark);
+  }
+  .criterion:last-child { border-bottom: none; }
+  .criterion-name {
+    font-weight: 600;
+    color: var(--black);
+    margin-bottom: 4px;
+    font-size: 16px;
+  }
+  .criterion-desc {
+    color: var(--gray-text);
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+  .scale {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .scale label {
+    cursor: pointer;
+    text-align: center;
+    padding: 10px 4px;
+    border: 1.5px solid var(--gray-light);
+    border-radius: 6px;
+    transition: all 0.15s;
+    font-size: 13px;
+    background: var(--white);
+  }
+  .scale label:hover {
+    border-color: var(--gold);
+    background: var(--cream);
+  }
+  .scale input[type="radio"] {
+    display: none;
+  }
+  .scale input[type="radio"]:checked + .scale-label {
+    background: var(--black);
+    color: var(--white);
+    border-color: var(--black);
+  }
+  .scale-label {
+    display: block;
+    padding: 10px 4px;
+    border: 1.5px solid var(--gray-light);
+    border-radius: 6px;
+    transition: all 0.15s;
+    font-size: 12px;
+    background: var(--white);
+    cursor: pointer;
+  }
+  .scale-label:hover {
+    border-color: var(--gold);
+    background: var(--cream);
+  }
+  .scale-num {
+    display: block;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 2px;
+  }
+  .scale-desc {
+    display: block;
+    font-size: 10px;
+    color: var(--gray-text);
+    line-height: 1.3;
+  }
+  .scale input[type="radio"]:checked + .scale-label .scale-desc {
+    color: var(--cream-dark);
+  }
+  .notes-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--gray-light);
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    margin-top: 4px;
+    resize: vertical;
+    min-height: 36px;
+  }
+  .notes-input:focus { outline: none; border-color: var(--gold); }
+
+  /* Sidebar */
+  .sidebar {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+  }
+  .score-card {
+    background: var(--black);
+    color: var(--white);
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+  }
+  .score-card .label {
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .score-display {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 64px;
+    font-weight: 500;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .score-out-of {
+    color: var(--gold);
+    font-size: 16px;
+    margin-left: 8px;
+  }
+  .completion-bar {
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    height: 6px;
+    margin: 16px 0 6px;
+    overflow: hidden;
+  }
+  .completion-bar-fill {
+    background: var(--gold);
+    height: 100%;
+    transition: width 0.3s;
+  }
+  .completion-text {
+    font-size: 12px;
+    color: var(--cream-dark);
+  }
+
+  .track-recommendation {
+    margin-top: 20px;
+    padding: 16px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.06);
+  }
+  .track-name {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 28px;
+    font-weight: 500;
+    margin-top: 4px;
+  }
+  .track-light .track-name { color: var(--light); }
+  .track-moderate .track-name { color: var(--moderate); }
+  .track-heavy .track-name { color: var(--heavy); }
+  .track-incomplete .track-name { color: var(--gray-light); font-size: 18px; }
+  .track-detail {
+    font-size: 13px;
+    color: var(--cream-dark);
+    margin-top: 8px;
+  }
+
+  /* Score band visualization */
+  .score-bands {
+    display: flex;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 14px;
+    background: rgba(255,255,255,0.1);
+    position: relative;
+  }
+  .band-light { background: var(--light); flex: 50; }
+  .band-moderate { background: var(--moderate); flex: 51; }
+  .band-heavy { background: var(--heavy); flex: 51; }
+  .score-marker {
+    position: absolute;
+    top: -4px;
+    width: 2px;
+    height: 16px;
+    background: var(--white);
+    transform: translateX(-1px);
+    transition: left 0.3s;
+  }
+  .band-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--cream-dark);
+    margin-top: 6px;
+    letter-spacing: 1px;
+  }
+
+  /* Buttons */
+  .actions {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .btn {
+    padding: 12px 20px;
+    border-radius: 6px;
+    border: none;
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-primary {
+    background: var(--gold);
+    color: var(--white);
+  }
+  .btn-primary:hover { background: var(--gold-dark); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--white);
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+  .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-light {
+    background: var(--white);
+    color: var(--black);
+    border: 1px solid var(--gray-light);
+  }
+  .btn-light:hover { border-color: var(--gold); }
+  .btn-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .save-status {
+    font-size: 11px;
+    color: var(--cream-dark);
+    text-align: center;
+    margin-top: 8px;
+    height: 14px;
+  }
+
+  /* Report view */
+  .report-view {
+    display: none;
+  }
+  .report-view.active {
+    display: block;
+  }
+  .scorecard-view.hidden {
+    display: none;
+  }
+
+  .report-header {
+    background: var(--black);
+    color: var(--white);
+    padding: 48px 40px;
+    border-bottom: 4px solid var(--gold);
+  }
+  .report-header .brand {
+    color: var(--gold);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .report-header h1 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 48px;
+    font-weight: 500;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .report-header .client-name {
+    color: var(--gold);
+    font-size: 22px;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 500;
+  }
+  .report-header .meta {
+    color: var(--cream-dark);
+    margin-top: 16px;
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+
+  .report-body {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 40px;
+  }
+  .report-section {
+    margin-bottom: 40px;
+    page-break-inside: avoid;
+  }
+  .report-section h2 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 30px;
+    font-weight: 500;
+    color: var(--black);
+    margin-bottom: 4px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--gold);
+  }
+  .report-section h3 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--black);
+    margin-top: 24px;
+    margin-bottom: 8px;
+  }
+
+  .verdict-card {
+    background: var(--white);
+    border-left: 6px solid var(--gold);
+    padding: 32px;
+    margin: 24px 0;
+    border-radius: 6px;
+    box-shadow: var(--shadow);
+  }
+  .verdict-track {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 56px;
+    font-weight: 500;
+    color: var(--black);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .verdict-track.track-light { color: #059669; }
+  .verdict-track.track-moderate { color: #D97706; }
+  .verdict-track.track-heavy { color: #DC2626; }
+  .verdict-meta {
+    color: var(--gray-text);
+    font-size: 15px;
+    margin-bottom: 16px;
+  }
+  .verdict-timeline {
+    background: var(--cream);
+    padding: 16px;
+    border-radius: 4px;
+    margin-top: 16px;
+    font-size: 14px;
+  }
+  .verdict-timeline strong {
+    color: var(--black);
+  }
+
+  .breakdown-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  .breakdown-table th {
+    text-align: left;
+    padding: 12px 14px;
+    background: var(--black);
+    color: var(--white);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .breakdown-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--cream-dark);
+  }
+  .breakdown-table tr.tier-row td {
+    background: var(--cream);
+    font-weight: 600;
+    color: var(--black);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .score-cell {
+    text-align: center;
+    font-weight: 600;
+    width: 80px;
+  }
+  .weight-cell {
+    text-align: center;
+    color: var(--gold);
+    font-weight: 600;
+    width: 60px;
+  }
+  .total-cell {
+    text-align: center;
+    font-weight: 700;
+    width: 80px;
+  }
+
+  .priority-list {
+    list-style: none;
+    margin-top: 12px;
+  }
+  .priority-list li {
+    padding: 12px 16px;
+    background: var(--cream);
+    border-left: 4px solid var(--gold);
+    border-radius: 4px;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  .priority-list li strong {
+    color: var(--black);
+    display: block;
+    margin-bottom: 2px;
+  }
+  .priority-list li .score-tag {
+    color: var(--gold);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .next-steps-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  @media (max-width: 700px) {
+    .next-steps-grid { grid-template-columns: 1fr; }
+    .field-row { grid-template-columns: 1fr; }
+  }
+  .step-card {
+    background: var(--white);
+    border: 1px solid var(--cream-dark);
+    border-radius: 6px;
+    padding: 20px;
+  }
+  .step-card .step-num {
+    color: var(--gold);
+    font-size: 11px;
+    letter-spacing: 2px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .step-card h4 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--black);
+    margin-bottom: 8px;
+  }
+  .step-card p {
+    color: var(--gray-text);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .report-footer {
+    text-align: center;
+    padding: 32px 40px;
+    background: var(--black);
+    color: var(--cream-dark);
+    margin-top: 40px;
+  }
+  .report-footer .quote {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    color: var(--gold);
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+  .report-footer .brand {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .report-actions {
+    background: var(--cream-dark);
+    padding: 20px 40px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .report-actions .btn-light {
+    border: 1px solid var(--black);
+  }
+
+  /* Print styles */
+  @media print {
+    body { background: var(--white); }
+    header, .container, .report-actions, .scorecard-view { display: none !important; }
+    .report-view { display: block !important; }
+    .report-header { padding: 32px 40px; }
+    .report-header h1 { font-size: 36px; }
+    .report-section { page-break-inside: avoid; }
+    .verdict-card, .step-card, .priority-list li { page-break-inside: avoid; }
+    .report-footer { background: var(--black); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .report-header { background: var(--black); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .breakdown-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Montserrat:wght@400;500;600;700&display=swap');
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Scorecard View -->
+<div class="scorecard-view">
+<header>
+  <div class="tagline">LuxeCraft Consulting</div>
+  <h1>Build Complexity Scorecard</h1>
+  <div class="subtitle">Phase 0 diagnostic tool. Score the client's current JobTread account state across 20 weighted criteria to determine the appropriate Phase 1 implementation track: Light, Moderate, or Heavy.</div>
+</header>
+
+<div class="container">
+  <main>
+
+    <!-- Client info -->
+    <div class="card">
+      <div class="section-tag">Client Information</div>
+      <h2>Engagement Details</h2>
+      <p class="intro">Captured at the time of audit. This information appears on the final report.</p>
+      <div class="field-row">
+        <div class="field">
+          <label>Client / Company name</label>
+          <input type="text" id="client-name" placeholder="e.g. Grande Construction Group">
+        </div>
+        <div class="field">
+          <label>Primary contact</label>
+          <input type="text" id="contact-name" placeholder="e.g. Laura Grande">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Audit date</label>
+          <input type="date" id="audit-date">
+        </div>
+        <div class="field">
+          <label>Consultant</label>
+          <input type="text" id="consultant-name" value="Megan Peyton">
+        </div>
+      </div>
+      <div class="field">
+        <label>Notes about the engagement</label>
+        <textarea id="engagement-notes" rows="2" placeholder="Anything about the client's situation, urgency, special considerations..." style="width:100%; padding:10px 14px; border:1px solid var(--gray-light); border-radius:6px; font-family:inherit; font-size:15px; resize:vertical;"></textarea>
+      </div>
+    </div>
+
+    <!-- Tier 1 -->
+    <div class="card">
+      <div class="tier-header">
+        <span class="tier-badge tier-1">Tier 1 · Highest impact</span>
+        <span style="font-size:13px; color:var(--gray-text);">×3 weight</span>
+      </div>
+      <h2>Heavy-Build Items</h2>
+      <p class="intro">These items have the largest impact on overall build time. Score honestly — they drive the bulk of the Phase 1 work.</p>
+      <div id="tier-1-criteria"></div>
+    </div>
+
+    <!-- Tier 2 -->
+    <div class="card">
+      <div class="tier-header">
+        <span class="tier-badge tier-2">Tier 2 · Moderate impact</span>
+        <span style="font-size:13px; color:var(--gray-text);">×2 weight</span>
+      </div>
+      <h2>Significant-Build Items</h2>
+      <p class="intro">These items add meaningful build time but aren't the deciders. Often a mix of cleanup and net-new build.</p>
+      <div id="tier-2-criteria"></div>
+    </div>
+
+    <!-- Tier 3 -->
+    <div class="card">
+      <div class="tier-header">
+        <span class="tier-badge tier-3">Tier 3 · Lighter impact</span>
+        <span style="font-size:13px; color:var(--gray-text);">×1 weight</span>
+      </div>
+      <h2>Lighter-Build Items</h2>
+      <p class="intro">Quicker to set up or already in place for most clients. Still scored, but lower weight.</p>
+      <div id="tier-3-criteria"></div>
+    </div>
+
+    <div style="text-align:center; margin: 16px 0 32px;">
+      <button class="btn btn-primary" id="generate-report-btn" style="padding: 14px 32px; font-size: 14px;">Generate Client Report</button>
+    </div>
+
+  </main>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="score-card">
+      <div class="label">Live Score</div>
+      <div>
+        <span class="score-display" id="live-score">0</span>
+        <span class="score-out-of">/ 190</span>
+      </div>
+
+      <div class="completion-bar">
+        <div class="completion-bar-fill" id="completion-bar" style="width: 0%;"></div>
+      </div>
+      <div class="completion-text" id="completion-text">0 of 20 criteria scored</div>
+
+      <div class="score-bands">
+        <div class="band-light"></div>
+        <div class="band-moderate"></div>
+        <div class="band-heavy"></div>
+        <div class="score-marker" id="score-marker" style="left: 0%; display: none;"></div>
+      </div>
+      <div class="band-labels">
+        <span>38</span><span>89</span><span>140</span><span>190</span>
+      </div>
+
+      <div class="track-recommendation track-incomplete" id="track-rec">
+        <div class="label">Recommended Track</div>
+        <div class="track-name" id="track-name">Score all criteria</div>
+        <div class="track-detail" id="track-detail">Complete the rubric to see your recommendation</div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="generate-report-btn-2">View Report</button>
+        <button class="btn btn-secondary" id="save-progress-btn">Save Progress</button>
+        <button class="btn btn-secondary" id="load-progress-btn">Load Progress</button>
+        <input type="file" id="load-file-input" accept=".json" style="display:none;">
+        <button class="btn btn-secondary" id="reset-btn" style="margin-top:8px;">Start New</button>
+      </div>
+      <div class="save-status" id="save-status">Auto-saved locally</div>
+    </div>
+  </aside>
+</div>
+</div>
+
+<!-- Report View -->
+<div class="report-view" id="report-view">
+  <div class="report-actions" id="report-actions-top">
+    <button class="btn btn-light" id="back-to-scorecard-btn">← Back to Scorecard</button>
+    <button class="btn btn-primary" id="print-report-btn">Print / Save as PDF</button>
+    <button class="btn btn-light" id="save-progress-btn-2">Save Progress (JSON)</button>
+  </div>
+
+  <div class="report-header">
+    <div class="brand">LuxeCraft Consulting · Phase 0 Diagnostic</div>
+    <h1>Build Complexity Assessment</h1>
+    <div class="client-name" id="report-client-name">Client Name</div>
+    <div class="meta" id="report-meta">Audit Date · Consultant Name</div>
+  </div>
+
+  <div class="report-body">
+    <div class="report-section">
+      <h2>Recommended Implementation Track</h2>
+      <div class="verdict-card">
+        <div class="verdict-track" id="verdict-track">Light</div>
+        <div class="verdict-meta" id="verdict-meta">Score: 65 of 190 · Build complexity: Low</div>
+        <p id="verdict-description" style="color:var(--gray-text); margin-bottom: 12px;">Recommendation description.</p>
+        <div class="verdict-timeline" id="verdict-timeline">
+          <strong>13-week engagement breakdown:</strong>
+          <span id="timeline-detail">Discovery · Build · Rollout · Handoff</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <h2>Score Breakdown</h2>
+      <p style="color:var(--gray-text); margin-bottom: 12px; font-size:14px;">Each criterion scored 1 (clean / ready) to 5 (needs full build). Tier weights reflect impact on overall build time.</p>
+      <table class="breakdown-table" id="breakdown-table">
+        <thead>
+          <tr>
+            <th>Criterion</th>
+            <th class="score-cell">Score</th>
+            <th class="weight-cell">×</th>
+            <th class="total-cell">Weighted</th>
+          </tr>
+        </thead>
+        <tbody id="breakdown-body"></tbody>
+      </table>
+    </div>
+
+    <div class="report-section">
+      <h2>Build-Out Priorities</h2>
+      <p style="color:var(--gray-text); margin-bottom: 12px; font-size:14px;">The criteria that scored highest — these are where the bulk of your Phase 1 build-out time will go.</p>
+      <ol class="priority-list" id="priority-list"></ol>
+    </div>
+
+    <div class="report-section" id="notes-section" style="display:none;">
+      <h2>Notes from the Audit</h2>
+      <div id="notes-content" style="font-size:14px; color:var(--gray-text);"></div>
+    </div>
+
+    <div class="report-section">
+      <h2>What Happens Next</h2>
+      <div class="next-steps-grid">
+        <div class="step-card">
+          <div class="step-num">Step 1</div>
+          <h4>Track Confirmation</h4>
+          <p>You'll receive a track confirmation document outlining what's in scope, what's out of scope, and the weekly cadence for our 13-week engagement.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">Step 2</div>
+          <h4>Build-Out Roadmap</h4>
+          <p>A visual flowchart showing every milestone — what gets built when, what gets rolled out when, and what your team will see at each step.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">Step 3</div>
+          <h4>Phase 1 Kickoff</h4>
+          <p>Heads-down build work begins. Your Success Champion is identified and starts their weekly training cadence with us.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">Step 4</div>
+          <h4>Cascading Team Rollout</h4>
+          <p>Tools roll out to your team in tiers — daily habits first, then workflow, then client-facing, then financial. Each tier builds on the last.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-footer">
+    <div class="quote">Let's build something that lasts.</div>
+    <div class="brand">LuxeCraft Consulting · LuxeCraftConsulting.com</div>
+  </div>
+</div>
+
+<script>
+  // Define criteria
+  const CRITERIA = [
+    // Tier 1 - weight 3
+    { id: 'user-roles', tier: 1, name: 'User roles & permissions', desc: 'Are roles defined for each team member? Permissions set correctly? Team mapped to JobTread users?' },
+    { id: 'budget-template', tier: 1, name: 'Budget template', desc: 'Does a working budget template exist? Are formulas accurate? Is it reusable across job types?' },
+    { id: 'schedule-template', tier: 1, name: 'Schedule template', desc: 'Schedule templates exist with logical task structure, dependencies, and milestones?' },
+    { id: 'selections-catalog', tier: 1, name: 'Selections catalog', desc: 'Selections built out, allowances defined, packages structured, customer-facing experience configured?' },
+    { id: 'cost-catalog', tier: 1, name: 'Cost catalog', desc: 'Cost items entered with correct categories, units, vendors, and pricing? Comprehensive coverage?' },
+    { id: 'team-data-readiness', tier: 1, name: 'Team data readiness', desc: 'Customer list, vendor list, historical jobs, contacts — ready to import? Clean and current?' },
+    // Tier 2 - weight 2
+    { id: 'document-templates', tier: 2, name: 'Document templates', desc: 'Contract, proposal, change order, invoice, and selection templates exist and are branded?' },
+    { id: 'cost-inboxing', tier: 2, name: 'Cost inboxing setup', desc: 'Cost inbox routing configured? Bills/receipts flow into JobTread cleanly?' },
+    { id: 'reporting', tier: 2, name: 'Reporting & dashboards', desc: 'Role-based dashboards configured? KPIs defined? Reports producing useful output?' },
+    { id: 'specifications', tier: 2, name: 'Specifications', desc: 'Spec library built out, organized, and tied to selections and budget where appropriate?' },
+    { id: 'platform-migration', tier: 2, name: 'Prior platform migration', desc: 'Coming from BuilderTrend, CoConstruct, spreadsheets? Migration complexity? Active jobs to transfer?' },
+    { id: 'vendors', tier: 2, name: 'Vendors', desc: 'Vendor records complete with contact info, categories, payment terms, and active status?' },
+    // Tier 3 - weight 1
+    { id: 'customer-pipeline', tier: 3, name: 'Customer pipeline', desc: 'Pipeline stages defined matching the sales process? Lead-to-close logic clear?' },
+    { id: 'time-tracking', tier: 3, name: 'Time tracking', desc: 'Time tracking configured? Cost codes set? Geofencing or approval workflows in place if used?' },
+    { id: 'daily-logs', tier: 3, name: 'Daily logs', desc: 'Daily log template structured? Field team understands what to capture? Photos integrated?' },
+    { id: 'plans', tier: 3, name: 'Plans', desc: 'Plans tab organized? Takeoff parameters configured if used? Estimators trained?' },
+    { id: 'file-storage', tier: 3, name: 'File storage', desc: 'File organization structure defined? Folders consistent across jobs? Naming conventions in place?' },
+    { id: 'messaging', tier: 3, name: 'Messaging & communication', desc: 'Internal messaging set up to replace text/email threads? Customer messaging configured?' },
+    { id: 'account-hygiene', tier: 3, name: 'Account hygiene', desc: 'Duplicate jobs, abandoned data, inconsistent naming? Cleanup needed before build?' },
+    { id: 'integrations', tier: 3, name: 'Integrations', desc: 'QuickBooks Online or other accounting integration configured? Other connections in place and working?' },
+  ];
+
+  const SCORE_LABELS = [
+    { num: 1, label: 'Clean' },
+    { num: 2, label: 'Mostly ready' },
+    { num: 3, label: 'Some gaps' },
+    { num: 4, label: 'Major gaps' },
+    { num: 5, label: 'From scratch' },
+  ];
+
+  // Storage key
+  const STORAGE_KEY = 'luxecraft-scorecard-v1';
+
+  // Render criteria
+  function renderCriteria() {
+    [1, 2, 3].forEach(tier => {
+      const container = document.getElementById(`tier-${tier}-criteria`);
+      const tierCriteria = CRITERIA.filter(c => c.tier === tier);
+      container.innerHTML = tierCriteria.map(c => `
+        <div class="criterion" data-criterion-id="${c.id}">
+          <div class="criterion-name">${c.name}</div>
+          <div class="criterion-desc">${c.desc}</div>
+          <div class="scale">
+            ${SCORE_LABELS.map(s => `
+              <input type="radio" name="${c.id}" id="${c.id}-${s.num}" value="${s.num}" data-criterion="${c.id}">
+              <label for="${c.id}-${s.num}" class="scale-label" data-num="${s.num}">
+                <span class="scale-num">${s.num}</span>
+                <span class="scale-desc">${s.label}</span>
+              </label>
+            `).join('')}
+          </div>
+          <textarea class="notes-input" data-notes-for="${c.id}" placeholder="Notes (optional)..."></textarea>
+        </div>
+      `).join('');
+    });
+
+    // Attach handlers after render
+    document.querySelectorAll('input[type="radio"]').forEach(r => {
+      r.addEventListener('change', () => {
+        updateScore();
+        autoSave();
+      });
+    });
+    document.querySelectorAll('textarea[data-notes-for]').forEach(t => {
+      t.addEventListener('input', autoSave);
+    });
+  }
+
+  // Calculate weighted score
+  function calculateScore() {
+    let totalScore = 0;
+    let scoredCount = 0;
+    const scores = {};
+    const breakdown = [];
+
+    CRITERIA.forEach(c => {
+      const radio = document.querySelector(`input[name="${c.id}"]:checked`);
+      const weight = c.tier === 1 ? 3 : c.tier === 2 ? 2 : 1;
+      if (radio) {
+        const score = parseInt(radio.value);
+        const weighted = score * weight;
+        totalScore += weighted;
+        scoredCount++;
+        scores[c.id] = score;
+        breakdown.push({ ...c, score, weight, weighted });
+      } else {
+        breakdown.push({ ...c, score: null, weight, weighted: 0 });
+      }
+    });
+
+    return { totalScore, scoredCount, scores, breakdown };
+  }
+
+  // Determine track
+  function getTrack(totalScore, scoredCount) {
+    if (scoredCount < CRITERIA.length) {
+      return { name: null, key: 'incomplete' };
+    }
+    if (totalScore <= 88) return {
+      name: 'Light',
+      key: 'light',
+      summary: '2 weeks build · 9 weeks rollout · 1 week handoff',
+      detail: 'A relatively clean account that needs targeted cleanup and refinement. The build phase will focus on perfecting what exists and filling small gaps.',
+      timeline: '<strong>Week 0:</strong> Discovery & track confirmation · <strong>Weeks 1–2:</strong> Build-out (account refinement, gap fills) · <strong>Weeks 3–11:</strong> Cascading team rollout (9 weeks across 4 tiers) · <strong>Week 12:</strong> Optimization & Support Lab handoff'
+    };
+    if (totalScore <= 139) return {
+      name: 'Moderate',
+      key: 'moderate',
+      summary: '4 weeks build · 7 weeks rollout · 1 week handoff',
+      detail: 'An account with meaningful build-out needs alongside cleanup. Several major modules require new construction or significant restructuring before team rollout can begin.',
+      timeline: '<strong>Week 0:</strong> Discovery & track confirmation · <strong>Weeks 1–4:</strong> Build-out (significant new build + cleanup) · <strong>Weeks 5–11:</strong> Cascading team rollout (7 weeks across 4 tiers) · <strong>Week 12:</strong> Optimization & Support Lab handoff'
+    };
+    return {
+      name: 'Heavy',
+      key: 'heavy',
+      summary: '6 weeks build · 5 weeks rollout · 1 week handoff',
+      detail: 'An account requiring substantial build-out from near-scratch. Major Phase 1 investment in account architecture before team can be onboarded effectively.',
+      timeline: '<strong>Week 0:</strong> Discovery & track confirmation · <strong>Weeks 1–6:</strong> Build-out (full account architecture + heavy build) · <strong>Weeks 7–11:</strong> Cascading team rollout (5 weeks, condensed cadence) · <strong>Week 12:</strong> Optimization & Support Lab handoff'
+    };
+  }
+
+  // Update sidebar score
+  function updateScore() {
+    const { totalScore, scoredCount } = calculateScore();
+    document.getElementById('live-score').textContent = totalScore;
+
+    const completion = (scoredCount / CRITERIA.length) * 100;
+    document.getElementById('completion-bar').style.width = completion + '%';
+    document.getElementById('completion-text').textContent =
+      `${scoredCount} of ${CRITERIA.length} criteria scored`;
+
+    const track = getTrack(totalScore, scoredCount);
+    const trackEl = document.getElementById('track-rec');
+    trackEl.className = 'track-recommendation track-' + track.key;
+
+    if (track.key === 'incomplete') {
+      document.getElementById('track-name').textContent = 'Score all criteria';
+      document.getElementById('track-detail').textContent =
+        `${CRITERIA.length - scoredCount} criteria remaining`;
+    } else {
+      document.getElementById('track-name').textContent = track.name + ' Track';
+      document.getElementById('track-detail').textContent = track.summary;
+    }
+
+    // Update marker position on band
+    const marker = document.getElementById('score-marker');
+    if (scoredCount > 0) {
+      const pct = ((totalScore - 38) / (190 - 38)) * 100;
+      marker.style.left = Math.max(0, Math.min(100, pct)) + '%';
+      marker.style.display = 'block';
+    } else {
+      marker.style.display = 'none';
+    }
+  }
+
+  // Auto-save to localStorage
+  let saveTimer = null;
+  function autoSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(getStateForSave()));
+        flashSaveStatus('Auto-saved locally');
+      } catch (e) { /* localStorage may be disabled */ }
+    }, 400);
+  }
+
+  function flashSaveStatus(msg) {
+    const el = document.getElementById('save-status');
+    el.textContent = msg;
+  }
+
+  function getStateForSave() {
+    const state = {
+      version: 1,
+      savedAt: new Date().toISOString(),
+      client: {
+        name: document.getElementById('client-name').value,
+        contact: document.getElementById('contact-name').value,
+        date: document.getElementById('audit-date').value,
+        consultant: document.getElementById('consultant-name').value,
+        notes: document.getElementById('engagement-notes').value,
+      },
+      scores: {},
+      notes: {},
+    };
+    CRITERIA.forEach(c => {
+      const radio = document.querySelector(`input[name="${c.id}"]:checked`);
+      if (radio) state.scores[c.id] = parseInt(radio.value);
+      const note = document.querySelector(`textarea[data-notes-for="${c.id}"]`);
+      if (note && note.value) state.notes[c.id] = note.value;
+    });
+    return state;
+  }
+
+  function loadState(state) {
+    if (!state) return;
+    document.getElementById('client-name').value = state.client?.name || '';
+    document.getElementById('contact-name').value = state.client?.contact || '';
+    document.getElementById('audit-date').value = state.client?.date || '';
+    document.getElementById('consultant-name').value = state.client?.consultant || 'Megan Peyton';
+    document.getElementById('engagement-notes').value = state.client?.notes || '';
+
+    Object.entries(state.scores || {}).forEach(([id, score]) => {
+      const radio = document.querySelector(`input[name="${id}"][value="${score}"]`);
+      if (radio) radio.checked = true;
+    });
+    Object.entries(state.notes || {}).forEach(([id, note]) => {
+      const textarea = document.querySelector(`textarea[data-notes-for="${id}"]`);
+      if (textarea) textarea.value = note;
+    });
+    updateScore();
+  }
+
+  // Save progress to JSON file
+  function saveProgressToFile() {
+    const state = getStateForSave();
+    const clientSlug = (state.client.name || 'unnamed-client')
+      .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const date = new Date().toISOString().split('T')[0];
+    const filename = `luxecraft-scorecard-${clientSlug}-${date}.json`;
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    flashSaveStatus('Saved to file');
+  }
+
+  // Load progress from JSON file
+  function loadProgressFromFile(file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const state = JSON.parse(e.target.result);
+        loadState(state);
+        flashSaveStatus('Loaded from file');
+      } catch (err) {
+        alert('Could not read that file. Make sure it is a valid LuxeCraft scorecard JSON file.');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // Generate report
+  function generateReport() {
+    const { totalScore, scoredCount, breakdown } = calculateScore();
+    if (scoredCount < CRITERIA.length) {
+      alert(`Please score all ${CRITERIA.length} criteria before generating the report. ${CRITERIA.length - scoredCount} remaining.`);
+      return;
+    }
+
+    const track = getTrack(totalScore, scoredCount);
+    const clientName = document.getElementById('client-name').value || 'Client';
+    const contactName = document.getElementById('contact-name').value;
+    const auditDate = document.getElementById('audit-date').value;
+    const consultantName = document.getElementById('consultant-name').value || 'Megan Peyton';
+    const engagementNotes = document.getElementById('engagement-notes').value;
+
+    document.getElementById('report-client-name').textContent = clientName;
+    const dateFormatted = auditDate ? new Date(auditDate + 'T00:00').toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'}) : new Date().toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'});
+    document.getElementById('report-meta').textContent =
+      `${dateFormatted} · Prepared by ${consultantName}${contactName ? ' for ' + contactName : ''}`;
+
+    const verdictEl = document.getElementById('verdict-track');
+    verdictEl.textContent = track.name + ' Track';
+    verdictEl.className = 'verdict-track track-' + track.key;
+    document.getElementById('verdict-meta').textContent =
+      `Score: ${totalScore} of 190 · Build complexity: ${track.name}`;
+    document.getElementById('verdict-description').textContent = track.detail;
+    document.getElementById('timeline-detail').innerHTML = ' ' + track.timeline;
+
+    // Breakdown table
+    const tbody = document.getElementById('breakdown-body');
+    tbody.innerHTML = '';
+    [1, 2, 3].forEach(tier => {
+      const tierName = tier === 1 ? 'Tier 1 · Highest impact (×3)' : tier === 2 ? 'Tier 2 · Moderate impact (×2)' : 'Tier 3 · Lighter impact (×1)';
+      tbody.innerHTML += `<tr class="tier-row"><td colspan="4">${tierName}</td></tr>`;
+      breakdown.filter(b => b.tier === tier).forEach(b => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${b.name}</td>
+            <td class="score-cell">${b.score}</td>
+            <td class="weight-cell">${b.weight}</td>
+            <td class="total-cell">${b.weighted}</td>
+          </tr>
+        `;
+      });
+    });
+    tbody.innerHTML += `
+      <tr style="background: var(--black); color: var(--white);">
+        <td><strong>Total</strong></td>
+        <td colspan="2" class="score-cell" style="color: var(--gold);"><strong>Weighted score</strong></td>
+        <td class="total-cell"><strong>${totalScore} / 190</strong></td>
+      </tr>
+    `;
+
+    // Priority list - top scored items
+    const priorities = [...breakdown]
+      .filter(b => b.score >= 3)
+      .sort((a, b) => b.weighted - a.weighted)
+      .slice(0, 6);
+
+    const priorityList = document.getElementById('priority-list');
+    if (priorities.length === 0) {
+      priorityList.innerHTML = '<li><strong>No major build-out priorities identified.</strong> The account is in strong shape — Phase 1 will focus on refinement and gap-fill.</li>';
+    } else {
+      priorityList.innerHTML = priorities.map(p => {
+        const note = document.querySelector(`textarea[data-notes-for="${p.id}"]`);
+        const noteText = note && note.value ? `<div style="margin-top:6px; font-size:13px; color:var(--gray-text); font-style:italic;">${escapeHtml(note.value)}</div>` : '';
+        return `<li>
+          <strong>${p.name}</strong>
+          <span class="score-tag">Score ${p.score}/5 · Weighted ${p.weighted} · Tier ${p.tier}</span>
+          ${noteText}
+        </li>`;
+      }).join('');
+    }
+
+    // Engagement notes section
+    const notesSection = document.getElementById('notes-section');
+    if (engagementNotes && engagementNotes.trim()) {
+      notesSection.style.display = 'block';
+      document.getElementById('notes-content').innerHTML = `<p>${escapeHtml(engagementNotes).replace(/\n/g, '<br>')}</p>`;
+    } else {
+      notesSection.style.display = 'none';
+    }
+
+    // Show report view
+    document.querySelector('.scorecard-view').classList.add('hidden');
+    document.querySelector('.report-view').classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function backToScorecard() {
+    document.querySelector('.scorecard-view').classList.remove('hidden');
+    document.querySelector('.report-view').classList.remove('active');
+    window.scrollTo(0, 0);
+  }
+
+  function resetAll() {
+    if (!confirm('Reset all scores and start a new assessment? This will clear all current data.')) return;
+    document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+    document.querySelectorAll('input[type="text"], input[type="date"]').forEach(i => {
+      if (i.id === 'consultant-name') i.value = 'Megan Peyton';
+      else i.value = '';
+    });
+    document.querySelectorAll('textarea').forEach(t => t.value = '');
+    localStorage.removeItem(STORAGE_KEY);
+    updateScore();
+    flashSaveStatus('Reset complete');
+  }
+
+  // Init
+  document.addEventListener('DOMContentLoaded', () => {
+    renderCriteria();
+
+    // Default audit date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('audit-date').value = today;
+
+    // Load from localStorage
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) loadState(JSON.parse(saved));
+    } catch (e) { /* ignore */ }
+
+    // Wire up text/date inputs to autosave
+    document.querySelectorAll('input[type="text"], input[type="date"], #engagement-notes').forEach(i => {
+      i.addEventListener('input', autoSave);
+    });
+
+    // Buttons
+    document.getElementById('generate-report-btn').addEventListener('click', generateReport);
+    document.getElementById('generate-report-btn-2').addEventListener('click', generateReport);
+    document.getElementById('back-to-scorecard-btn').addEventListener('click', backToScorecard);
+    document.getElementById('print-report-btn').addEventListener('click', () => window.print());
+    document.getElementById('save-progress-btn').addEventListener('click', saveProgressToFile);
+    document.getElementById('save-progress-btn-2').addEventListener('click', saveProgressToFile);
+    document.getElementById('load-progress-btn').addEventListener('click', () => {
+      document.getElementById('load-file-input').click();
+    });
+    document.getElementById('load-file-input').addEventListener('change', e => {
+      if (e.target.files[0]) loadProgressFromFile(e.target.files[0]);
+    });
+    document.getElementById('reset-btn').addEventListener('click', resetAll);
+
+    updateScore();
+  });
+</script>
+</body>
+</html>

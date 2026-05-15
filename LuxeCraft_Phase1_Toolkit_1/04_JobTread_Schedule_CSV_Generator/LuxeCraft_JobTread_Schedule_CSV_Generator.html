@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LuxeCraft JobTread Schedule CSV Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #1A1A1A;
+    --gold: #B8935A;
+    --gold-dark: #8E6F40;
+    --cream: #F5F1E8;
+    --cream-dark: #E8E4DC;
+    --gray-text: #4A4A4A;
+    --gray-light: #D8D4CC;
+    --white: #FEFCF7;
+    --shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--cream);
+    color: var(--black);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--black);
+    color: var(--white);
+    padding: 32px 40px;
+    border-bottom: 4px solid var(--gold);
+  }
+  header .tagline {
+    color: var(--gold);
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  header h1 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 36px;
+    font-weight: 500;
+    margin-top: 8px;
+  }
+  header .subtitle {
+    color: var(--cream-dark);
+    margin-top: 12px;
+    font-size: 15px;
+    max-width: 700px;
+  }
+
+  .container {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px 40px;
+  }
+  @media (max-width: 1100px) {
+    .container { grid-template-columns: 1fr; }
+    .input-panel { position: static !important; }
+  }
+
+  .input-panel {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+  }
+
+  .card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 28px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--cream-dark);
+    margin-bottom: 24px;
+  }
+  .card h2 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .card .section-tag {
+    color: var(--gold);
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .card p.intro {
+    color: var(--gray-text);
+    margin-bottom: 18px;
+    font-size: 13px;
+  }
+
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gray-text);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .field input, .field select, .field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--gray-light);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--white);
+    transition: border-color 0.15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+
+  .track-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .track-option {
+    cursor: pointer;
+    border: 1.5px solid var(--gray-light);
+    border-radius: 6px;
+    padding: 12px 8px;
+    text-align: center;
+    transition: all 0.15s;
+    background: var(--white);
+  }
+  .track-option:hover { border-color: var(--gold); }
+  .track-option.selected {
+    background: var(--black);
+    color: var(--white);
+    border-color: var(--black);
+  }
+  .track-option input { display: none; }
+  .track-option .name {
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .track-option .detail {
+    font-size: 10px;
+    color: var(--gray-text);
+    margin-top: 2px;
+  }
+  .track-option.selected .detail { color: var(--cream-dark); }
+
+  .actions {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .btn {
+    padding: 12px 16px;
+    border-radius: 6px;
+    border: none;
+    font-family: inherit;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .btn-primary {
+    background: var(--gold);
+    color: var(--white);
+  }
+  .btn-primary:hover { background: var(--gold-dark); }
+  .btn-secondary {
+    background: var(--white);
+    color: var(--black);
+    border: 1px solid var(--gray-light);
+  }
+  .btn-secondary:hover { border-color: var(--gold); }
+
+  .save-status {
+    font-size: 11px;
+    color: var(--gray-text);
+    text-align: center;
+    margin-top: 8px;
+    height: 14px;
+  }
+
+  /* Preview */
+  .preview-card {
+    background: var(--white);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--cream-dark);
+    overflow: hidden;
+  }
+  .preview-header {
+    background: var(--black);
+    color: var(--white);
+    padding: 24px 32px;
+    border-bottom: 4px solid var(--gold);
+  }
+  .preview-header h3 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 24px;
+    font-weight: 500;
+  }
+  .preview-header .meta {
+    color: var(--cream-dark);
+    margin-top: 6px;
+    font-size: 13px;
+  }
+  .preview-body {
+    padding: 24px 32px;
+  }
+  .preview-row {
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    background: var(--cream);
+    border-radius: 6px;
+    border-left: 4px solid var(--gold);
+  }
+  .preview-row.invoice {
+    background: var(--cream-dark);
+    border-left-color: var(--black);
+  }
+  .preview-row.champion {
+    background: #FBF6E8;
+    border-left-color: var(--gold);
+    border-left-width: 6px;
+  }
+  .preview-row.parent {
+    background: var(--black);
+    color: var(--white);
+    border-left-color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .preview-row .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .preview-row .name {
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .preview-row .dates {
+    font-size: 11px;
+    color: var(--gray-text);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .preview-row.parent .dates { color: var(--cream-dark); }
+  .preview-row .desc {
+    font-size: 12px;
+    color: var(--gray-text);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+  .preview-row.parent .desc { color: var(--cream-dark); }
+  .preview-row .subtasks {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--gray-light);
+  }
+  .preview-row .subtasks-label {
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .preview-row .subtask {
+    font-size: 12px;
+    color: var(--gray-text);
+    padding: 3px 0;
+    padding-left: 18px;
+    position: relative;
+  }
+  .preview-row .subtask::before {
+    content: "□";
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-size: 14px;
+    line-height: 1;
+  }
+  .preview-row .subtask.prep {
+    color: var(--gold-dark);
+    font-weight: 600;
+    margin-top: 4px;
+  }
+  .preview-row .subtask.prep::before {
+    color: var(--gold-dark);
+    content: "▸";
+  }
+
+  .empty-state {
+    background: var(--white);
+    border: 2px dashed var(--gray-light);
+    border-radius: 8px;
+    padding: 80px 40px;
+    text-align: center;
+    color: var(--gray-text);
+  }
+  .empty-state h3 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--black);
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    font-size: 14px;
+  }
+
+  .help-card {
+    background: var(--cream);
+    border-left: 4px solid var(--gold);
+    padding: 20px 24px;
+    border-radius: 4px;
+    margin-bottom: 24px;
+  }
+  .help-card h4 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .help-card p {
+    font-size: 13px;
+    color: var(--gray-text);
+    margin-bottom: 6px;
+  }
+  .help-card ol {
+    font-size: 13px;
+    color: var(--gray-text);
+    margin-left: 20px;
+    margin-top: 8px;
+  }
+  .help-card li {
+    margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tagline">LuxeCraft Consulting · Internal Tool</div>
+  <h1>JobTread Schedule CSV Generator</h1>
+  <div class="subtitle">Generates a JobTread-importable schedule CSV with the full 13-week implementation plan, weekly milestones, build-out subtasks, and invoice rows — all in dependency order based on the assigned client track.</div>
+</header>
+
+<div class="container">
+
+  <aside class="input-panel">
+    <div class="card">
+      <span class="section-tag">Client Setup</span>
+      <h2>Schedule Inputs</h2>
+      <p class="intro">Generates a CSV ready to import into JobTread. Choose the start date during JobTread import.</p>
+
+      <div class="field">
+        <label>Client / Company name</label>
+        <input type="text" id="client-name" placeholder="e.g. Haven Valley">
+      </div>
+
+      <div class="field">
+        <label>Job / Group name (in JobTread)</label>
+        <input type="text" id="group-name" placeholder="Auto-generated from client name">
+      </div>
+
+      <div class="field">
+        <label>Kickoff date (Week 0 reference)</label>
+        <input type="date" id="kickoff-date">
+        <div style="font-size:11px; color:var(--gray-text); margin-top:6px;">Used as preview only. Choose final date during JobTread import.</div>
+      </div>
+
+      <div class="field">
+        <label>Implementation track</label>
+        <div class="track-options">
+          <label class="track-option" data-track="light">
+            <input type="radio" name="track" value="light">
+            <div class="name">Light</div>
+            <div class="detail">2 build / 9 rollout</div>
+          </label>
+          <label class="track-option selected" data-track="moderate">
+            <input type="radio" name="track" value="moderate" checked>
+            <div class="name">Moderate</div>
+            <div class="detail">4 build / 7 rollout</div>
+          </label>
+          <label class="track-option" data-track="heavy">
+            <input type="radio" name="track" value="heavy">
+            <div class="name">Heavy</div>
+            <div class="detail">6 build / 5 rollout</div>
+          </label>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="download-btn">Download CSV</button>
+        <button class="btn btn-secondary" id="save-btn">Save Progress (JSON)</button>
+        <button class="btn btn-secondary" id="load-btn">Load Progress</button>
+        <input type="file" id="load-file" accept=".json" style="display:none;">
+      </div>
+      <div class="save-status" id="save-status">Auto-saved locally</div>
+    </div>
+
+    <div class="help-card">
+      <h4>Import Steps</h4>
+      <ol>
+        <li>Create the new client job in JobTread</li>
+        <li>Open Schedule tab → Import CSV</li>
+        <li>Upload the downloaded file</li>
+        <li>Map columns (defaults usually work)</li>
+        <li>Choose start date — JobTread reflows all dates from there</li>
+      </ol>
+    </div>
+  </aside>
+
+  <main id="preview-container">
+    <div class="empty-state" id="empty-state">
+      <h3>Enter client details to preview schedule</h3>
+      <p>Client name and kickoff date required.</p>
+    </div>
+    <div id="preview" style="display:none;">
+      <div class="preview-card">
+        <div class="preview-header">
+          <h3 id="preview-title">Schedule Preview</h3>
+          <div class="meta" id="preview-meta">Track · Total tasks</div>
+        </div>
+        <div class="preview-body" id="preview-body"></div>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'luxecraft-csv-gen-v1';
+
+  // CSV columns (exact order matching JobTread import format)
+  const CSV_HEADERS = ['Group','Name','Type','Target Type','Target ID','Description','Start Date','Start Time','End Date','End Time','Assignees','Depends On Tasks','Subtasks','Progress'];
+
+  // Build-out subtasks per week per track
+  // For build phase weeks, these are consultant heads-down tasks
+  // For rollout weeks, these are pre-rollout prep + the rollout itself + post-rollout adoption checks
+
+  const ROLLOUT_PLAYBOOK_SUBTASKS = (toolName) => [
+    `Build slide deck and Loom walkthrough for ${toolName}`,
+    `Send content to leadership for approval`,
+    `Receive leadership signoff before kickoff`,
+    `Run live team kickoff session with Success Champion co-leading`,
+    `Distribute session recording`,
+    `Mid-week practice check-in with Success Champion`,
+    `End-of-week adoption review`,
+    `Document any holdouts or follow-ups`,
+  ];
+
+  // Prep subtask clusters by content type — what to collect/coordinate
+  // for each upcoming week's work. Keyed by the topic of NEXT week.
+  const PREP_CLUSTERS = {
+    buildKickoff: [
+      'Collect cost catalog or current line items from client',
+      'Gather customer pipeline logic and current sales process',
+      'Collect user role information and permission desires',
+      'Collect existing document templates (contracts, proposals, etc.)',
+      'Gather team roster (names, roles, emails)',
+    ],
+    budgetAndPlans: [
+      'Collect existing budget data (spreadsheets, examples)',
+      'Gather typical assemblies and cost groupings',
+      'Collect plan examples and parameter requirements',
+      'Identify SF formulas or other calculations they use',
+    ],
+    scheduleAndSelections: [
+      'Collect existing schedule examples or templates',
+      'Gather typical project milestones and durations',
+      'Collect selections lists and current allowance structure',
+      'Identify selection package logic (good/better/best, etc.)',
+    ],
+    customersJobsChampion: [
+      'Collect customer list for import',
+      'Identify active jobs that should be loaded',
+      'Confirm integration credentials (QBO, etc.)',
+      'Verify Success Champion bandwidth and availability',
+    ],
+    tier1Habits: [
+      'Confirm full team email list for JobTread invitations',
+      'Schedule team kickoff meeting time',
+      'Get leadership signoff on Tier 1 rollout content',
+      'Identify any team members who need extra support',
+    ],
+    budgetsLive: [
+      'Confirm budget template is finalized and tested',
+      'Get leadership signoff on budget rollout content',
+      'Identify which estimators/PMs go first',
+      'Prep example budgets for live demo',
+    ],
+    plansSchedules: [
+      'Confirm schedule template tested with active job',
+      'Verify parameters tied to budget assemblies',
+      'Get leadership signoff on Plans + Schedules content',
+      'Identify which PMs go first',
+    ],
+    timeTracking: [
+      'Confirm cost codes mapped correctly',
+      'Verify time tracking permissions configured',
+      'Get leadership signoff on time tracking content',
+      'Communicate change to field team in advance',
+    ],
+    selections: [
+      'Confirm selections catalog finalized',
+      'Test customer-facing selection experience',
+      'Get leadership signoff on selections rollout',
+      'Identify which active jobs get selections first',
+    ],
+    documentsProposals: [
+      'Confirm all document templates branded and ready',
+      'Test e-signature workflow end to end',
+      'Get leadership signoff on proposals/contracts content',
+      'Identify first jobs to use new proposal flow',
+    ],
+    financialClosure: [
+      'Confirm change order workflow tested',
+      'Verify QBO sync working correctly',
+      'Get leadership signoff on financial rollout content',
+      'Identify which jobs use new invoicing flow first',
+    ],
+    dashboardsHandoff: [
+      'Confirm KPIs leadership wants to track',
+      'Verify role-based dashboard requirements',
+      'Schedule final review meeting with leadership',
+      'Prep Support Lab onboarding materials',
+    ],
+    ongoingSupport: [
+      'Document open items for Support Lab',
+      'Schedule 30/60/90-day check-ins',
+      'Confirm client onboarded to Skool community',
+      'Wrap up final invoice and engagement closeout',
+    ],
+    bufferRefinement: [
+      'Identify lagging adoption areas to address next week',
+      'Schedule any 1:1 reinforcement sessions needed',
+      'Document tool-specific edge cases surfacing from team',
+    ],
+    heavyCustomerPipelineTemplates: [
+      'Collect existing customer pipeline logic and stages',
+      'Gather current document templates (contracts, proposals, COs)',
+      'Collect vendor list and categorization preferences',
+      'Identify any specifications categories needed',
+    ],
+    heavyPlansParameters: [
+      'Collect plan examples and typical project types',
+      'Gather parameter requirements for builds',
+      'Identify SF formulas or other calculations',
+      'Confirm plans-to-budget logic with leadership',
+    ],
+    heavyBudgetsPlansSchedulesCombo: [
+      'Confirm budget, schedule, and plans templates fully tested together',
+      'Get leadership signoff on combined Tier 2 rollout content',
+      'Identify which estimators/PMs go first',
+      'Brief Champion on combined rollout cadence',
+    ],
+    heavySelectionsProposalsCombo: [
+      'Confirm full sales workflow tested end to end',
+      'Test e-signature workflow',
+      'Get leadership signoff on combined sales rollout content',
+      'Identify first jobs to use new sales flow',
+    ],
+  };
+
+  // Helper: prefix all items in a prep cluster with "PREP: "
+  const prep = (clusterKey) => PREP_CLUSTERS[clusterKey].map(s => `PREP: ${s}`);
+
+  // Champion sessions — 12 weekly leadership coaching themes, one per week W1-W12
+  // Each session is a separate task that runs alongside the weekly team task
+  // Lands on the Friday of each week (back-to-back with the team call)
+  const CHAMPION_SESSIONS = {
+    1: {
+      name: 'SC: Stepping into the Role',
+      description: 'Champion learns what the role requires. Boundaries of the role, naming their own resistance, building the muscle of being a beginner publicly.',
+      subtasks: [
+        'Review Champion Playbook Chapter 1 with the Champion',
+        'Discuss reflection questions: why chosen, strengths, biggest worry, what success looks like',
+        'Talk through role boundaries (not the consultant, not the help desk)',
+        'Discuss how to handle resistance from teammates without taking it personally',
+        'Confirm Champion has logged into JobTread and explored on their own',
+        'Capture what they committed to this week',
+        'PREP: Review Chapter 2 (Owning Your Own Learning) before next session',
+      ],
+    },
+    2: {
+      name: 'SC: Owning Your Own Learning',
+      description: 'Champion builds the habit of looking up answers before asking. JobTread help center fluency, when to ask vs when to dig.',
+      subtasks: [
+        'Check accountability: did they complete Week 1 commitment?',
+        'Review Champion Playbook Chapter 2 with the Champion',
+        'Walk through JobTread help center together — searching, bookmarking',
+        'Discuss when to ask vs when to dig',
+        'Talk through how to model self-sufficiency for the team',
+        'Capture this week commitment: look up at least 3 things in JobTread before asking',
+        'PREP: Review Chapter 3 (Holding the Team to New Habits) before next session',
+      ],
+    },
+    3: {
+      name: 'SC: Holding the Team to New Habits',
+      description: 'First team rollout week. Champion learns to be visible, model the tool, handle resistance with curiosity.',
+      subtasks: [
+        'Check accountability: did they complete Week 2 commitment?',
+        'Review Champion Playbook Chapter 3 with the Champion',
+        'Discuss who showed up and engaged this week, who did not',
+        'Talk through the first user effect (leader visibility drives team adoption)',
+        'Practice deflection: how to say I will get back to you on that',
+        'Identify any teammates not logged in. Make a personal outreach plan',
+        'Capture commitment: use the new tool in front of at least 3 teammates this week',
+        'PREP: Review Chapter 4 (Reading the Room) before next session',
+      ],
+    },
+    4: {
+      name: 'SC: Reading the Room',
+      description: 'Champion learns to see adoption patterns. Reading JobTread activity data, distinguishing struggle from opt-out.',
+      subtasks: [
+        'Check accountability: did they complete Week 3 commitment?',
+        'Review Champion Playbook Chapter 4 with the Champion',
+        'Walk through JobTread user activity reports together',
+        'Identify who is engaging, struggling, and quietly opting out',
+        'Discuss the difference between needs help and needs a different conversation',
+        'Plan one private low-pressure conversation with a struggling teammate',
+        'Capture commitment: have one struggling teammate conversation this week',
+        'PREP: Review Chapter 5 (Becoming the Question Person) before next session',
+      ],
+    },
+    5: {
+      name: 'SC: Becoming the Question Person',
+      description: 'Volume of team questions ramping up. Champion learns to triage, redirect, and build internal knowledge base.',
+      subtasks: [
+        'Check accountability: did they complete Week 4 commitment?',
+        'Review Champion Playbook Chapter 5 with the Champion',
+        'Discuss how the question volume feels, energy levels',
+        'Identify repeated questions (training/documentation gaps)',
+        'Practice triaging: immediate vs can-wait vs redirect-to-help',
+        'Help Champion start a running list of unresolved questions',
+        'Capture commitment: redirect at least 1 question this week instead of answering it',
+        'PREP: Review Chapter 6 (Working with the Heartbeat) before next session',
+      ],
+    },
+    6: {
+      name: 'SC: Working with the Heartbeat',
+      description: 'Budgets are live. Champion learns to handle the weight of financial responsibility, set the precedent for surfacing mistakes.',
+      subtasks: [
+        'Check accountability: did they complete Week 5 commitment?',
+        'Review Champion Playbook Chapter 6 with the Champion',
+        'Discuss how the team is responding to budgets being live',
+        'Identify who owns budgets day to day, how they are doing',
+        'Talk through how to handle the first budget mistake without making the team defensive',
+        'Walk through one job budget together, identify insights',
+        'Capture commitment: check budget before any cost decision this week',
+        'PREP: Review Chapter 7 (Connecting the Dots) before next session',
+      ],
+    },
+    7: {
+      name: 'SC: Connecting the Dots',
+      description: 'Plans, schedules, budgets working together. Champion learns to talk about JobTread as a system, not a list of features.',
+      subtasks: [
+        'Check accountability: did they complete Week 6 commitment?',
+        'Review Champion Playbook Chapter 7 with the Champion',
+        'Identify who is seeing connections, who is treating tools as separate',
+        'Discuss how to frame JobTread as a system in team conversations',
+        'Walk through one job: trace it through plans, budget, schedule together',
+        'Identify breaks in the flow (information that drops between tools)',
+        'Capture commitment: have one conversation pointing out a tool connection',
+        'PREP: Review Chapter 8 (Closing the Loop) before next session',
+      ],
+    },
+    8: {
+      name: 'SC: Closing the Loop',
+      description: 'Time tracking live. System is now operating, not being built. Champion learns to use data as feedback, not surveillance.',
+      subtasks: [
+        'Check accountability: did they complete Week 7 commitment?',
+        'Review Champion Playbook Chapter 8 with the Champion',
+        'Discuss field team time tracking consistency',
+        'Talk through framing time data as feedback for the team, not against',
+        'Identify time entries that look suspicious or missing',
+        'Walk through time entries for one job, compare to estimates',
+        'Capture commitment: bring one observation from time data to the team',
+        'PREP: Review Chapter 9 (Carrying the Customer Experience) before next session',
+      ],
+    },
+    9: {
+      name: 'SC: Carrying the Customer Experience',
+      description: 'Selections live with customers. Champion role expands to protecting the customer experience while team learns.',
+      subtasks: [
+        'Check accountability: did they complete Week 8 commitment?',
+        'Review Champion Playbook Chapter 9 with the Champion',
+        'Identify who owns customer-facing selections work',
+        'Walk through the customer-facing selections experience together',
+        'Discuss feedback loop with team members using selections with customers',
+        'Plan a quick recovery protocol if a customer hits something broken',
+        'Capture commitment: check in personally with one team member using selections this week',
+        'PREP: Review Chapter 10 (Standing Behind the Process) before next session',
+      ],
+    },
+    10: {
+      name: 'SC: Standing Behind the Process',
+      description: 'Proposals and contracts going out. Champion learns to treat quality control as a leadership act.',
+      subtasks: [
+        'Check accountability: did they complete Week 9 commitment?',
+        'Review Champion Playbook Chapter 10 with the Champion',
+        'Identify who reviews proposals before they go out, what review checks for',
+        'Discuss what good document quality control looks like beyond proofreading',
+        'Walk through last 3 proposals or contracts that went out, evaluate quality',
+        'Identify any templates being modified job-by-job (template gaps)',
+        'Capture commitment: personally review one document before it goes out this week',
+        'PREP: Review Chapter 11 (Closing the Books with Confidence) before next session',
+      ],
+    },
+    11: {
+      name: 'SC: Closing the Books with Confidence',
+      description: 'Full financial loop live. Champion helps team trust the data and formalize change orders religiously.',
+      subtasks: [
+        'Check accountability: did they complete Week 10 commitment?',
+        'Review Champion Playbook Chapter 11 with the Champion',
+        'Discuss whether change orders are being captured or happening verbally',
+        'Talk through who owns invoicing now and their confidence level',
+        'Walk through one job change orders trace from discussion to billing',
+        'Identify any POs still going through email instead of JobTread',
+        'Capture commitment: every change order discussed gets entered same day',
+        'PREP: Review Chapter 12 (Carrying It Forward) before next session',
+      ],
+    },
+    12: {
+      name: 'SC: Carrying It Forward',
+      description: 'Final session. Champion prepares to carry the work forward after consultant steps back. Support Lab handoff, ongoing practice setup.',
+      subtasks: [
+        'Check accountability: did they complete Week 11 commitment?',
+        'Review Champion Playbook Chapter 12 with the Champion',
+        'Discuss who has grown most over 12 weeks, who least',
+        'Identify habits that will be fragile after engagement ends',
+        'Walk through Support Lab community: how to use it as ongoing resource',
+        'Outline approach for onboarding new team members to JobTread',
+        'Discuss how to evaluate new JobTread features as they come out',
+        'Capture final commitment: one ongoing practice they will hold themselves to',
+        'Celebrate what they have built. They earned it.',
+      ],
+    },
+  };
+
+  const TRACKS = {
+    light: {
+      name: 'Light',
+      summary: '2-week build · 9-week rollout · 1-week handoff',
+      invoiceWeeks: [1, 5, 9],  // W1, W5, W9 milestone invoices (top of week)
+      weeks: {
+        0: {
+          name: 'Week 0 - Discovery & Kickoff',
+          description: 'Track confirmation from Build Complexity Scorecard. Scope confirmation document signed. Kickoff meeting with client team. Success Champion identified and committed.',
+          subtasks: [
+            'Deliver Build Complexity Scorecard report',
+            'Send Track Assignment & Scope Confirmation document',
+            'Receive signed scope confirmation',
+            'Schedule weekly meeting cadence',
+            'Confirm Success Champion designation',
+            'Send Implementation Roadmap to client',
+            'Champion onboarding scheduled',
+            ...prep('buildKickoff'),
+          ],
+        },
+        1: {
+          name: 'Week 1 - Build-out begins',
+          description: 'Account refinement starts. Cost catalog cleanup, customer pipeline tightening, user roles verified.',
+          subtasks: [
+            'Audit and clean cost catalog',
+            'Refine customer pipeline stages',
+            'Verify and adjust user roles and permissions',
+            'Review and refine document templates',
+            'Identify gap fills for build phase',
+            'Champion training session 1 (~45 min)',
+            ...prep('budgetAndPlans'),
+          ],
+        },
+        2: {
+          name: 'Week 2 - Build wraps + Champion ready',
+          description: 'Final account review. Customer/job data verified. Success Champion fully trained.',
+          subtasks: [
+            'Verify budget templates are working',
+            'Verify schedule templates are working',
+            'Verify selections catalog is ready',
+            'Load any missing customer/job data',
+            'Champion completes full system walkthrough',
+            'Champion training session 2 (~45 min)',
+            'Final pre-rollout account review',
+            ...prep('tier1Habits'),
+          ],
+        },
+        3: {
+          name: 'Week 3 - Messaging, to-dos, daily logs launch',
+          description: 'First team rollout. Habit-building tools go live across the whole team. No dependencies on budget — these are the quick adoption wins that establish daily JobTread usage.',
+          subtasks: [
+            ...ROLLOUT_PLAYBOOK_SUBTASKS('Messaging, To-Dos, Daily Logs'),
+            ...prep('budgetsLive'),
+          ],
+        },
+        4: {
+          name: 'Week 4 - Budgets go live',
+          description: 'The heartbeat. Estimators and PMs start using budgets in real work.',
+          subtasks: [
+            ...ROLLOUT_PLAYBOOK_SUBTASKS('Budgets'),
+            ...prep('plansSchedules'),
+          ],
+        },
+        5: {
+          name: 'Week 5 - Plans + Schedules',
+          description: 'Schedules connect to budgets, plans tab activates with parameters.',
+          subtasks: [
+            ...ROLLOUT_PLAYBOOK_SUBTASKS('Plans + Schedules'),
+            ...prep('timeTracking'),
+          ],
+        },
+        6: {
+          name: 'Week 6 - Time tracking',
+          description: 'Now possible. Time logged against budgets and schedules.',
+          subtasks: [
+            ...ROLLOUT_PLAYBOOK_SUBTASKS('Time Tracking'),
+            ...prep('selections'),
+          ],
+        },
+        7: {
+          name: 'Week 7 - Selections + Allowances',
+          description: 'Customer-facing selections experience goes live.',
+          subtasks: [
+            ...ROLLOUT_PLAYBOOK_SUBTASKS('Selections + Allowances'),
+            ...prep('documentsProposals'),
+          ],
+        },
+        8: {
+          name: 'Week 8 - Documents, files, proposals, contracts',
+          description: 'Document workflow, proposals, contracts, e-signatures.',
+          subtasks: [
+            ...ROLLOUT_PLAYBOOK_SUBTASKS('Documents, Proposals, Contracts'),
+            ...prep('financialClosure'),
+          ],
+        },
+        9: {
+          name: 'Week 9 - Financial closure',
+          description: 'Change orders, POs, invoicing, cost tracking.',
+          subtasks: [
+            ...ROLLOUT_PLAYBOOK_SUBTASKS('Financial Operations'),
+            ...prep('bufferRefinement'),
+          ],
+        },
+        10: {
+          name: 'Week 10 - Buffer + refinement',
+          description: 'Catch-up week for any tools needing reinforcement.',
+          subtasks: [
+            'Identify lagging adoption areas',
+            'Schedule targeted 1:1 reinforcement sessions',
+            'Refine workflows based on team feedback',
+            'Address Success Champion questions',
+            'Document tool-specific edge cases',
+            ...prep('bufferRefinement'),
+          ],
+        },
+        11: {
+          name: 'Week 11 - Adoption deepening',
+          description: 'Reinforcement of habits, address any holdouts.',
+          subtasks: [
+            'Run adoption metrics review',
+            'Identify any holdouts and create targeted plans',
+            'Reinforce habits with Success Champion',
+            'Begin dashboards conversation with leadership',
+            ...prep('dashboardsHandoff'),
+          ],
+        },
+        12: {
+          name: 'Week 12 - Dashboards, KPIs, handoff',
+          description: 'Leadership visibility, transition into Support Lab.',
+          subtasks: [
+            'Configure role-based dashboards',
+            'Build out KPI reports',
+            'Final adoption review with leadership',
+            'Deliver 60/90-day plan',
+            'Onboard client to Support Lab community',
+            'Document open items for ongoing support',
+            ...prep('ongoingSupport'),
+          ],
+        },
+      }
+    },
+    moderate: {
+      name: 'Moderate',
+      summary: '4-week build · 7-week rollout · 1-week handoff',
+      invoiceWeeks: [1, 5, 9],
+      weeks: {
+        0: {
+          name: 'Week 0 - Discovery & Kickoff',
+          description: 'Track confirmation from Build Complexity Scorecard. Scope confirmation document signed. Kickoff meeting with client team. Success Champion identified and committed.',
+          subtasks: [
+            'Deliver Build Complexity Scorecard report',
+            'Send Track Assignment & Scope Confirmation document',
+            'Receive signed scope confirmation',
+            'Schedule weekly meeting cadence',
+            'Confirm Success Champion designation',
+            'Send Implementation Roadmap to client',
+            'Champion onboarding scheduled',
+            ...prep('buildKickoff'),
+          ],
+        },
+        1: {
+          name: 'Week 1 - Build-out begins',
+          description: 'Cost catalog construction or major restructure. Customer pipeline build-out. User roles configured. Document templates drafted.',
+          subtasks: [
+            'Construct or significantly restructure cost catalog',
+            'Build customer pipeline stages and lead-to-close logic',
+            'Configure user roles and permissions',
+            'Map team to JobTread users',
+            'Begin document template development',
+            'Champion training session 1 (~45 min)',
+            ...prep('budgetAndPlans'),
+          ],
+        },
+        2: {
+          name: 'Week 2 - Budget and plans',
+          description: 'Budget templates built with formulas and assemblies. Plans tab and parameters configured.',
+          subtasks: [
+            'Build budget template with formulas',
+            'Configure cost assemblies',
+            'Build plans tab structure',
+            'Configure parameter library tied to budget',
+            'Begin vendor record build-out',
+            'Champion training session 2 (~45 min)',
+            ...prep('scheduleAndSelections'),
+          ],
+        },
+        3: {
+          name: 'Week 3 - Schedule and selections',
+          description: 'Schedule template construction, selections catalog with allowances and packages.',
+          subtasks: [
+            'Build schedule template with task structures',
+            'Configure schedule dependencies and milestones',
+            'Build selections catalog',
+            'Configure allowances and selection packages',
+            'Set up customer-facing selection experience',
+            'Champion training session 3 (~45 min)',
+            ...prep('customersJobsChampion'),
+          ],
+        },
+        4: {
+          name: 'Week 4 - Customers, jobs, Champion ready',
+          description: 'Live customer/job data loaded. Integrations verified. Success Champion fully trained.',
+          subtasks: [
+            'Import customer list',
+            'Load active job data',
+            'Configure integrations (QBO, etc.)',
+            'Verify cost inboxing setup',
+            'Final document templates completed',
+            'Champion completes full system walkthrough',
+            'Pre-rollout team communication sent',
+            ...prep('tier1Habits'),
+          ],
+        },
+        5: {
+          name: 'Week 5 - Messaging, to-dos, daily logs launch',
+          description: 'First team rollout. Habit-building tools go live across the whole team. No dependencies on budget — these are the quick adoption wins.',
+          subtasks: [
+            ...ROLLOUT_PLAYBOOK_SUBTASKS('Messaging, To-Dos, Daily Logs'),
+            ...prep('budgetsLive'),
+          ],
+        },
+        6: {
+          name: 'Week 6 - Budgets go live',
+          description: 'The heartbeat. Estimators and PMs start using budgets in real work.',
+          subtasks: [
+            ...ROLLOUT_PLAYBOOK_SUBTASKS('Budgets'),
+            ...prep('plansSchedules'),
+          ],
+        },
+        7: {
+          name: 'Week 7 - Plans + Schedules',
+          description: 'Schedules connect to budgets, plans tab activates with parameters.',
+          subtasks: [
+            ...ROLLOUT_PLAYBOOK_SUBTASKS('Plans + Schedules'),
+            ...prep('timeTracking'),
+          ],
+        },
+        8: {
+          name: 'Week 8 - Time tracking',
+          description: 'Now possible. Time logged against budgets and schedules.',
+          subtasks: [
+            ...ROLLOUT_PLAYBOOK_SUBTASKS('Time Tracking'),
+            ...prep('selections'),
+          ],
+        },
+        9: {
+          name: 'Week 9 - Selections + Allowances',
+          description: 'Customer-facing selections experience goes live.',
+          subtasks: [
+            ...ROLLOUT_PLAYBOOK_SUBTASKS('Selections + Allowances'),
+            ...prep('documentsProposals'),
+          ],
+        },
+        10: {
+          name: 'Week 10 - Documents, files, proposals, contracts',
+          description: 'Document workflow, proposals, contracts, e-signatures.',
+          subtasks: [
+            ...ROLLOUT_PLAYBOOK_SUBTASKS('Documents, Proposals, Contracts'),
+            ...prep('financialClosure'),
+          ],
+        },
+        11: {
+          name: 'Week 11 - Financial closure',
+          description: 'Change orders, POs, invoicing, cost tracking.',
+          subtasks: [
+            ...ROLLOUT_PLAYBOOK_SUBTASKS('Financial Operations'),
+            ...prep('dashboardsHandoff'),
+          ],
+        },
+        12: {
+          name: 'Week 12 - Dashboards, KPIs, handoff',
+          description: 'Leadership visibility, transition into Support Lab.',
+          subtasks: [
+            'Configure role-based dashboards',
+            'Build out KPI reports',
+            'Final adoption review with leadership',
+            'Deliver 60/90-day plan',
+            'Onboard client to Support Lab community',
+            'Document open items for ongoing support',
+            ...prep('ongoingSupport'),
+          ],
+        },
+      }
+    },
+    heavy: {
+      name: 'Heavy',
+      summary: '6-week build · 5-week rollout · 1-week handoff',
+      invoiceWeeks: [1, 5, 9],
+      weeks: {
+        0: {
+          name: 'Week 0 - Discovery & Kickoff',
+          description: 'Track confirmation from Build Complexity Scorecard. Scope confirmation document signed. Kickoff meeting with client team. Heavy track requires elevated leadership and Champion engagement throughout.',
+          subtasks: [
+            'Deliver Build Complexity Scorecard report',
+            'Send Track Assignment & Scope Confirmation document (Heavy track)',
+            'Receive signed scope confirmation',
+            'Schedule weekly meeting cadence',
+            'Confirm Success Champion designation and bandwidth',
+            'Send Implementation Roadmap to client',
+            'Set leadership expectations for condensed rollout cadence',
+            ...prep('buildKickoff'),
+          ],
+        },
+        1: {
+          name: 'Week 1 - Foundation build begins',
+          description: 'Full cost catalog construction from current operations. Account hygiene baseline established.',
+          subtasks: [
+            'Construct full cost catalog from operations data',
+            'Configure user roles and permissions',
+            'Map team to JobTread users',
+            'Account hygiene cleanup',
+            'Establish naming conventions',
+            'Champion training session 1 (~45 min)',
+            ...prep('heavyCustomerPipelineTemplates'),
+          ],
+        },
+        2: {
+          name: 'Week 2 - Customer pipeline + templates',
+          description: 'Customer pipeline build-out. Document template suite development. Vendor records constructed.',
+          subtasks: [
+            'Build customer pipeline stages from sales process',
+            'Develop full document template suite',
+            'Construct vendor records and categorization',
+            'Configure cost inboxing routing',
+            'Begin specifications library structure',
+            'Champion training session 2 (~45 min)',
+            ...prep('budgetAndPlans'),
+          ],
+        },
+        3: {
+          name: 'Week 3 - Budget templates',
+          description: 'Full budget template construction with formulas, assemblies, and reusable structures.',
+          subtasks: [
+            'Build budget template with formulas',
+            'Configure cost assemblies',
+            'Build reusable budget structures',
+            'Verify budget logic with leadership',
+            'Champion training session 3 (~45 min)',
+            ...prep('heavyPlansParameters'),
+          ],
+        },
+        4: {
+          name: 'Week 4 - Plans + parameters',
+          description: 'Plans tab structure, parameter library tied to budget.',
+          subtasks: [
+            'Build plans tab structure',
+            'Configure parameter library',
+            'Tie parameters to budget assemblies',
+            'Test plans-to-budget flow',
+            'Champion training session 4 (~45 min)',
+            ...prep('scheduleAndSelections'),
+          ],
+        },
+        5: {
+          name: 'Week 5 - Schedule + Selections',
+          description: 'Schedule templates and full selections catalog with allowances.',
+          subtasks: [
+            'Build schedule templates with dependencies',
+            'Configure schedule milestones',
+            'Build full selections catalog',
+            'Configure allowances and packages',
+            'Set up customer-facing selection experience',
+            'Champion training session 5 (~45 min)',
+            ...prep('customersJobsChampion'),
+          ],
+        },
+        6: {
+          name: 'Week 6 - Customers, jobs, Champion ready',
+          description: 'Live customer/job data loaded. Migration from prior platform completed if applicable. Champion fully trained on condensed rollout cadence.',
+          subtasks: [
+            'Import customer list',
+            'Load active job data',
+            'Complete migration from prior platform (if applicable)',
+            'Configure integrations (QBO, etc.)',
+            'Final document templates completed',
+            'Champion completes full system walkthrough',
+            'Brief Champion on condensed rollout cadence',
+            'Pre-rollout team communication sent',
+            ...prep('tier1Habits'),
+          ],
+        },
+        7: {
+          name: 'Week 7 - Messaging, to-dos, daily logs launch',
+          description: 'First team rollout. Habit-building tools go live across the whole team.',
+          subtasks: [
+            ...ROLLOUT_PLAYBOOK_SUBTASKS('Messaging, To-Dos, Daily Logs'),
+            ...prep('heavyBudgetsPlansSchedulesCombo'),
+          ],
+        },
+        8: {
+          name: 'Week 8 - Budgets + Plans + Schedules',
+          description: 'Heavy track condensed rollout — heartbeat tools go live together. Schedules and plans activate alongside budgets.',
+          subtasks: [
+            ...ROLLOUT_PLAYBOOK_SUBTASKS('Budgets, Plans, Schedules'),
+            ...prep('timeTracking'),
+          ],
+        },
+        9: {
+          name: 'Week 9 - Time tracking',
+          description: 'Time logged against budgets and schedules. Cost codes activated.',
+          subtasks: [
+            ...ROLLOUT_PLAYBOOK_SUBTASKS('Time Tracking'),
+            ...prep('heavySelectionsProposalsCombo'),
+          ],
+        },
+        10: {
+          name: 'Week 10 - Selections, allowances, proposals, contracts',
+          description: 'Full sales workflow rolled out together for customer-facing teams.',
+          subtasks: [
+            ...ROLLOUT_PLAYBOOK_SUBTASKS('Selections, Proposals, Contracts'),
+            ...prep('financialClosure'),
+          ],
+        },
+        11: {
+          name: 'Week 11 - Financial closure',
+          description: 'Change orders, POs, invoicing, cost tracking, document workflow.',
+          subtasks: [
+            ...ROLLOUT_PLAYBOOK_SUBTASKS('Financial Operations + Documents'),
+            ...prep('dashboardsHandoff'),
+          ],
+        },
+        12: {
+          name: 'Week 12 - Dashboards, KPIs, handoff',
+          description: 'Leadership visibility, transition into Support Lab.',
+          subtasks: [
+            'Configure role-based dashboards',
+            'Build out KPI reports',
+            'Final adoption review with leadership',
+            'Deliver 60/90-day plan',
+            'Onboard client to Support Lab community',
+            'Document open items for ongoing support',
+            ...prep('ongoingSupport'),
+          ],
+        },
+      }
+    }
+  };
+
+  // Format date as YYYY-MM-DD
+  function fmt(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  // Get Monday of week containing date
+  function getWeekStart(date) {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    d.setDate(d.getDate() + diff);
+    return d;
+  }
+
+  function addDays(date, days) {
+    const d = new Date(date);
+    d.setDate(d.getDate() + days);
+    return d;
+  }
+
+  // Build CSV content
+  // Branded short titles per week per track. Used as the group sub-name
+  // so each week becomes a shareable group in JobTread that the client can see
+  // without exposing the detailed task subtasks.
+  const WEEK_TITLES = {
+    light: {
+      0: 'Discovery & Kickoff',
+      1: 'Account Refinement',
+      2: 'Account Confirmation',
+      3: 'Foundation Habits Launch',
+      4: 'The Heartbeat Begins',
+      5: 'Connecting the Plan',
+      6: 'Closing the Loop',
+      7: 'The Customer Experience',
+      8: 'Sales Workflow',
+      9: 'Financial Closure',
+      10: 'Refinement Week',
+      11: 'Adoption Deepening',
+      12: 'Leadership Visibility & Handoff',
+    },
+    moderate: {
+      0: 'Discovery & Kickoff',
+      1: 'Account Foundation',
+      2: 'The Heartbeat Build',
+      3: 'Schedule & Selections Build',
+      4: 'Account Confirmation',
+      5: 'Foundation Habits Launch',
+      6: 'The Heartbeat Begins',
+      7: 'Connecting the Plan',
+      8: 'Closing the Loop',
+      9: 'The Customer Experience',
+      10: 'Sales Workflow',
+      11: 'Financial Closure',
+      12: 'Leadership Visibility & Handoff',
+    },
+    heavy: {
+      0: 'Discovery & Kickoff',
+      1: 'Account Foundation',
+      2: 'Pipeline & Templates',
+      3: 'The Heartbeat Build',
+      4: 'Plans & Parameters',
+      5: 'Schedule & Selections Build',
+      6: 'Account Confirmation',
+      7: 'Foundation Habits Launch',
+      8: 'The Heartbeat Begins',
+      9: 'Closing the Loop',
+      10: 'Sales Workflow',
+      11: 'Financial Closure',
+      12: 'Leadership Visibility & Handoff',
+    },
+  };
+
+  // Hardcoded assignees per requirement
+  const ASSIGNEE_DEFAULT = 'Megan Peyton';
+  const ASSIGNEE_INVOICE = 'Megan Peyton; Katie Norris';
+
+  function buildCSV() {
+    const clientName = document.getElementById('client-name').value.trim();
+    const groupName = document.getElementById('group-name').value.trim();
+    const kickoffStr = document.getElementById('kickoff-date').value;
+    const trackKey = document.querySelector('input[name="track"]:checked').value;
+
+    if (!clientName || !kickoffStr || !groupName) return null;
+
+    const track = TRACKS[trackKey];
+    const titles = WEEK_TITLES[trackKey];
+    const kickoffDate = new Date(kickoffStr + 'T00:00:00');
+    const week0Mon = getWeekStart(kickoffDate);
+
+    // Build rows
+    const rows = [];
+
+    // Compute parent job span: Mon of W0 → Fri of W12
+    const overallStart = fmt(week0Mon);
+    const overallEnd = fmt(addDays(week0Mon, 12 * 7 + 4));
+
+    // Top-level parent group row (the engagement as a whole)
+    rows.push({
+      Group: groupName,
+      Name: '',
+      Type: '',
+      'Target Type': 'job',
+      'Target ID': '',
+      Description: '',
+      'Start Date': overallStart,
+      'Start Time': '',
+      'End Date': overallEnd,
+      'End Time': '',
+      Assignees: '',
+      'Depends On Tasks': '',
+      Subtasks: '',
+      Progress: '0',
+    });
+
+    // Week 0 sits at the top level (no sub-group), as it is the Discovery + Kickoff
+    const w0 = track.weeks[0];
+    const w0Start = week0Mon;
+    const w0End = addDays(week0Mon, 4);
+    const w0Title = `Week 0 - ${titles[0]}`;
+
+    rows.push({
+      Group: groupName,
+      Name: w0Title,
+      Type: 'Discovery',
+      'Target Type': 'job',
+      'Target ID': '',
+      Description: w0.description,
+      'Start Date': fmt(w0Start),
+      'Start Time': '',
+      'End Date': fmt(w0End),
+      'End Time': '',
+      Assignees: ASSIGNEE_DEFAULT,
+      'Depends On Tasks': '',
+      Subtasks: w0.subtasks.join('; '),
+      Progress: '0',
+    });
+
+    // Track the most recent week task name across iterations for dependency chaining
+    let prevWeekTaskName = w0Title;
+    let prevWeekGroup = groupName;
+
+    // Generate weeks 1-12 as sub-groups
+    for (let i = 1; i <= 12; i++) {
+      const week = track.weeks[i];
+      if (!week) continue;
+
+      const weekStart = addDays(week0Mon, i * 7);
+      const weekEnd = addDays(weekStart, 4);
+      const weekTitle = titles[i] || '';
+      const subGroupName = `${groupName}; Week ${i}: ${weekTitle}`;
+      const weekTaskName = `Week ${i} - ${weekTitle}`;
+
+      // Sub-group placeholder row (empty Name) - this is what defines the group
+      rows.push({
+        Group: subGroupName,
+        Name: '',
+        Type: '',
+        'Target Type': 'job',
+        'Target ID': '',
+        Description: '',
+        'Start Date': fmt(weekStart),
+        'Start Time': '',
+        'End Date': fmt(weekEnd),
+        'End Time': '',
+        Assignees: '',
+        'Depends On Tasks': '',
+        Subtasks: '',
+        Progress: '0',
+      });
+
+      // Invoice row (if this week is an invoice milestone)
+      // Invoice goes at the TOP of the week, ON Monday (Start Date of week)
+      // Listed BEFORE the weekly task, so when looking at the group it appears first
+      const isInvoiceWeek = track.invoiceWeeks.includes(i);
+      if (isInvoiceWeek) {
+        const invoiceNum = track.invoiceWeeks.indexOf(i) + 1;
+        rows.push({
+          Group: subGroupName,
+          Name: `Invoice #${invoiceNum}`,
+          Type: 'PAYMENT',
+          'Target Type': 'job',
+          'Target ID': '',
+          Description: '',
+          'Start Date': fmt(weekStart),
+          'Start Time': '',
+          'End Date': fmt(weekStart),
+          'End Time': '',
+          Assignees: ASSIGNEE_INVOICE,
+          'Depends On Tasks': `${prevWeekGroup}; ${prevWeekTaskName}`,
+          Subtasks: '',
+          Progress: '0',
+        });
+      }
+
+      // Weekly task (Deliverable Build)
+      const weekDependsOn = `${prevWeekGroup}; ${prevWeekTaskName}`;
+      rows.push({
+        Group: subGroupName,
+        Name: weekTaskName,
+        Type: 'Deliverable Build',
+        'Target Type': 'job',
+        'Target ID': '',
+        Description: week.description,
+        'Start Date': fmt(weekStart),
+        'Start Time': '',
+        'End Date': fmt(weekEnd),
+        'End Time': '',
+        Assignees: ASSIGNEE_DEFAULT,
+        'Depends On Tasks': weekDependsOn,
+        Subtasks: week.subtasks.join('; '),
+        Progress: '0',
+      });
+
+      // Champion session task (Success Champion Training)
+      const champion = CHAMPION_SESSIONS[i];
+      if (champion) {
+        rows.push({
+          Group: subGroupName,
+          Name: champion.name,
+          Type: 'Success Champion Training',
+          'Target Type': 'job',
+          'Target ID': '',
+          Description: champion.description,
+          'Start Date': fmt(weekEnd),
+          'Start Time': '',
+          'End Date': fmt(weekEnd),
+          'End Time': '',
+          Assignees: ASSIGNEE_DEFAULT,
+          'Depends On Tasks': weekDependsOn,
+          Subtasks: champion.subtasks.join('; '),
+          Progress: '0',
+        });
+      }
+
+      // Update for next iteration
+      prevWeekTaskName = weekTaskName;
+      prevWeekGroup = subGroupName;
+    }
+
+    return rows;
+  }
+
+  // Convert array of objects to CSV string
+  function toCSV(rows) {
+    const escape = (val) => {
+      if (val === null || val === undefined) return '';
+      const s = String(val);
+      // Quote if contains comma, quote, newline
+      if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+        return '"' + s.replace(/"/g, '""') + '"';
+      }
+      return s;
+    };
+
+    const headerLine = CSV_HEADERS.join(',');
+    const dataLines = rows.map(row =>
+      CSV_HEADERS.map(h => escape(row[h])).join(',')
+    );
+    return [headerLine, ...dataLines].join('\n');
+  }
+
+  // Render preview
+  function renderPreview() {
+    const clientName = document.getElementById('client-name').value.trim();
+    const groupName = document.getElementById('group-name').value.trim();
+    const kickoffStr = document.getElementById('kickoff-date').value;
+    const trackKey = document.querySelector('input[name="track"]:checked').value;
+
+    if (!clientName || !kickoffStr) {
+      document.getElementById('empty-state').style.display = 'block';
+      document.getElementById('preview').style.display = 'none';
+      return;
+    }
+
+    document.getElementById('empty-state').style.display = 'none';
+    document.getElementById('preview').style.display = 'block';
+
+    const rows = buildCSV();
+    if (!rows) return;
+
+    const track = TRACKS[trackKey];
+    document.getElementById('preview-title').textContent = `13 Week Implementation - ${track.name}`;
+    document.getElementById('preview-meta').textContent =
+      `${track.summary} · ${rows.length} total rows (1 parent + 12 week groups + 1 discovery + 12 weekly tasks + 12 champion + ${track.invoiceWeeks.length} invoices)`;
+
+    const body = document.getElementById('preview-body');
+    body.innerHTML = '';
+
+    rows.forEach((row, idx) => {
+      const div = document.createElement('div');
+      const isParent = idx === 0;
+      const isInvoice = row.Name && row.Name.startsWith('Invoice');
+      const isChampion = row.Name && row.Name.startsWith('SC:');
+      div.className = `preview-row ${isParent ? 'parent' : ''} ${isInvoice ? 'invoice' : ''} ${isChampion ? 'champion' : ''}`;
+
+      const dates = isParent
+        ? `Overall · ${row['Start Date']} to ${row['End Date']}`
+        : isInvoice
+        ? `Invoice milestone · ${row['Start Date']}`
+        : isChampion
+        ? `Champion call · ${row['Start Date']}`
+        : `${row['Start Date']} to ${row['End Date']}`;
+
+      const subtasksHTML = row.Subtasks
+        ? `<div class="subtasks">
+            <div class="subtasks-label">${row.Subtasks.split('; ').length} subtask${row.Subtasks.split('; ').length === 1 ? '' : 's'}</div>
+            ${row.Subtasks.split('; ').map(s => {
+              const isPrep = s.startsWith('PREP:');
+              return `<div class="subtask${isPrep ? ' prep' : ''}">${escapeHtml(s)}</div>`;
+            }).join('')}
+          </div>`
+        : '';
+
+      div.innerHTML = `
+        <div class="top">
+          <div class="name">${escapeHtml(row.Name || `${groupName} (Parent Job)`)}</div>
+          <div class="dates">${escapeHtml(dates)}</div>
+        </div>
+        ${row.Description ? `<div class="desc">${escapeHtml(row.Description)}</div>` : ''}
+        ${subtasksHTML}
+      `;
+      body.appendChild(div);
+    });
+
+    autoSave();
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  // Auto-fill group name
+  function autoFillGroupName() {
+    const clientName = document.getElementById('client-name').value.trim();
+    const trackKey = document.querySelector('input[name="track"]:checked').value;
+    const trackName = TRACKS[trackKey].name;
+    const groupField = document.getElementById('group-name');
+    if (clientName && (!groupField.value || groupField.dataset.auto === 'true')) {
+      groupField.value = `13 Week Implementation - ${trackName}`;
+      groupField.dataset.auto = 'true';
+    }
+  }
+
+  // Track selection
+  document.querySelectorAll('.track-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.track-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      opt.querySelector('input').checked = true;
+      autoFillGroupName();
+      renderPreview();
+    });
+  });
+
+  // Live updates
+  document.getElementById('client-name').addEventListener('input', () => {
+    autoFillGroupName();
+    renderPreview();
+  });
+  document.getElementById('group-name').addEventListener('input', () => {
+    document.getElementById('group-name').dataset.auto = 'false';
+    renderPreview();
+  });
+  document.getElementById('kickoff-date').addEventListener('change', renderPreview);
+
+  // Download CSV
+  document.getElementById('download-btn').addEventListener('click', () => {
+    const rows = buildCSV();
+    if (!rows) {
+      alert('Please complete client name and kickoff date.');
+      return;
+    }
+    const csv = toCSV(rows);
+    // Add UTF-8 BOM to match JobTread export format
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const clientName = document.getElementById('client-name').value.trim();
+    const trackKey = document.querySelector('input[name="track"]:checked').value;
+    const slug = clientName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const filename = `${slug}-${trackKey}-track-jobtread-schedule.csv`;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    flashSave('CSV downloaded');
+  });
+
+  // Save / load
+  let saveTimer = null;
+  function autoSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(getState()));
+        flashSave('Auto-saved locally');
+      } catch (e) {}
+    }, 400);
+  }
+
+  function flashSave(msg) {
+    document.getElementById('save-status').textContent = msg;
+  }
+
+  function getState() {
+    return {
+      version: 1,
+      savedAt: new Date().toISOString(),
+      client: document.getElementById('client-name').value,
+      groupName: document.getElementById('group-name').value,
+      kickoff: document.getElementById('kickoff-date').value,
+      track: document.querySelector('input[name="track"]:checked').value,
+    };
+  }
+
+  function loadState(state) {
+    if (!state) return;
+    document.getElementById('client-name').value = state.client || '';
+    document.getElementById('group-name').value = state.groupName || '';
+    document.getElementById('kickoff-date').value = state.kickoff || '';
+    if (state.track) {
+      document.querySelectorAll('.track-option').forEach(o => o.classList.remove('selected'));
+      const opt = document.querySelector(`.track-option[data-track="${state.track}"]`);
+      if (opt) {
+        opt.classList.add('selected');
+        opt.querySelector('input').checked = true;
+      }
+    }
+    renderPreview();
+  }
+
+  function saveToFile() {
+    const state = getState();
+    const slug = (state.client || 'unnamed-client').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const date = new Date().toISOString().split('T')[0];
+    const filename = `luxecraft-csv-gen-${slug}-${date}.json`;
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    flashSave('Saved to file');
+  }
+
+  function loadFromFile(file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        loadState(JSON.parse(e.target.result));
+        flashSave('Loaded from file');
+      } catch (err) {
+        alert('Could not read that file.');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  document.getElementById('save-btn').addEventListener('click', saveToFile);
+  document.getElementById('load-btn').addEventListener('click', () => document.getElementById('load-file').click());
+  document.getElementById('load-file').addEventListener('change', e => {
+    if (e.target.files[0]) loadFromFile(e.target.files[0]);
+  });
+
+  // Init
+  document.addEventListener('DOMContentLoaded', () => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        loadState(JSON.parse(saved));
+        return;
+      }
+    } catch (e) {}
+    renderPreview();
+  });
+</script>
+</body>
+</html>

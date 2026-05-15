@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LuxeCraft Implementation Roadmap Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #1A1A1A;
+    --gold: #B8935A;
+    --gold-dark: #8E6F40;
+    --cream: #F5F1E8;
+    --cream-dark: #E8E4DC;
+    --gray-text: #4A4A4A;
+    --gray-light: #D8D4CC;
+    --white: #FEFCF7;
+
+    /* Phase colors */
+    --setup: #E8E4DC;
+    --setup-text: #4A4A4A;
+    --build: #FAEEDA;
+    --build-text: #854F0B;
+    --habits: #EEEDFE;
+    --habits-text: #3C3489;
+    --foundation: #E1F5EE;
+    --foundation-text: #0F6E56;
+    --sales: #FAECE7;
+    --sales-text: #993C1D;
+    --financial: #FBEAF0;
+    --financial-text: #993556;
+    --handoff: #E8E4DC;
+    --handoff-text: #4A4A4A;
+
+    --shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--cream);
+    color: var(--black);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--black);
+    color: var(--white);
+    padding: 32px 40px;
+    border-bottom: 4px solid var(--gold);
+  }
+  header .tagline {
+    color: var(--gold);
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  header h1 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 36px;
+    font-weight: 500;
+    margin-top: 8px;
+  }
+  header .subtitle {
+    color: var(--cream-dark);
+    margin-top: 12px;
+    font-size: 15px;
+    max-width: 700px;
+  }
+
+  /* Layout */
+  .container {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px 40px;
+  }
+  @media (max-width: 1100px) {
+    .container { grid-template-columns: 1fr; }
+    .input-panel { position: static !important; }
+  }
+
+  .input-panel {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+  }
+
+  .card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 28px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--cream-dark);
+  }
+  .card h2 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .card .section-tag {
+    color: var(--gold);
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .card p.intro {
+    color: var(--gray-text);
+    margin-bottom: 18px;
+    font-size: 13px;
+  }
+
+  .field {
+    margin-bottom: 16px;
+  }
+  .field label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gray-text);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .field input, .field select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--gray-light);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--white);
+    transition: border-color 0.15s;
+  }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+
+  .track-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .track-option {
+    cursor: pointer;
+    border: 1.5px solid var(--gray-light);
+    border-radius: 6px;
+    padding: 12px 8px;
+    text-align: center;
+    transition: all 0.15s;
+    background: var(--white);
+  }
+  .track-option:hover { border-color: var(--gold); }
+  .track-option.selected {
+    background: var(--black);
+    color: var(--white);
+    border-color: var(--black);
+  }
+  .track-option input { display: none; }
+  .track-option .name {
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .track-option .detail {
+    font-size: 10px;
+    color: var(--gray-text);
+    margin-top: 2px;
+  }
+  .track-option.selected .detail { color: var(--cream-dark); }
+
+  .actions {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .btn {
+    padding: 12px 16px;
+    border-radius: 6px;
+    border: none;
+    font-family: inherit;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .btn-primary {
+    background: var(--gold);
+    color: var(--white);
+  }
+  .btn-primary:hover { background: var(--gold-dark); }
+  .btn-secondary {
+    background: var(--white);
+    color: var(--black);
+    border: 1px solid var(--gray-light);
+  }
+  .btn-secondary:hover { border-color: var(--gold); }
+
+  .save-status {
+    font-size: 11px;
+    color: var(--gray-text);
+    text-align: center;
+    margin-top: 8px;
+    height: 14px;
+  }
+
+  /* Roadmap output */
+  .roadmap {
+    background: var(--white);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--cream-dark);
+  }
+  .roadmap-header {
+    background: var(--black);
+    color: var(--white);
+    padding: 32px 40px;
+    border-bottom: 4px solid var(--gold);
+  }
+  .roadmap-header .brand {
+    color: var(--gold);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .roadmap-header h2 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+  .roadmap-header .client-line {
+    color: var(--gold);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 22px;
+    font-weight: 500;
+    margin-top: 8px;
+  }
+  .roadmap-header .meta {
+    color: var(--cream-dark);
+    margin-top: 8px;
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+
+  .roadmap-body {
+    padding: 28px 40px;
+  }
+  .roadmap-intro {
+    color: var(--gray-text);
+    font-size: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--cream-dark);
+  }
+
+  /* Week rows */
+  .week-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 110px;
+    gap: 20px;
+    padding: 18px 20px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    border: 1px solid var(--cream-dark);
+    align-items: center;
+    page-break-inside: avoid;
+  }
+  .week-row.phase-setup { background: var(--setup); }
+  .week-row.phase-build { background: var(--build); }
+  .week-row.phase-habits { background: var(--habits); }
+  .week-row.phase-foundation { background: var(--foundation); }
+  .week-row.phase-sales { background: var(--sales); }
+  .week-row.phase-financial { background: var(--financial); }
+  .week-row.phase-handoff { background: var(--handoff); }
+
+  .week-num {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+  }
+  .week-num .label {
+    display: block;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 4px;
+    opacity: 0.7;
+  }
+  .week-row.phase-setup .week-num { color: var(--setup-text); }
+  .week-row.phase-build .week-num { color: var(--build-text); }
+  .week-row.phase-habits .week-num { color: var(--habits-text); }
+  .week-row.phase-foundation .week-num { color: var(--foundation-text); }
+  .week-row.phase-sales .week-num { color: var(--sales-text); }
+  .week-row.phase-financial .week-num { color: var(--financial-text); }
+  .week-row.phase-handoff .week-num { color: var(--handoff-text); }
+
+  .week-content {
+    min-width: 0;
+  }
+  .week-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--black);
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+  .week-dates {
+    font-size: 12px;
+    color: var(--gray-text);
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .week-detail {
+    font-size: 13px;
+    color: var(--gray-text);
+    line-height: 1.5;
+  }
+
+  .phase-tag {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 6px 8px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.6);
+  }
+  .week-row.phase-setup .phase-tag { color: var(--setup-text); }
+  .week-row.phase-build .phase-tag { color: var(--build-text); }
+  .week-row.phase-habits .phase-tag { color: var(--habits-text); }
+  .week-row.phase-foundation .phase-tag { color: var(--foundation-text); }
+  .week-row.phase-sales .phase-tag { color: var(--sales-text); }
+  .week-row.phase-financial .phase-tag { color: var(--financial-text); }
+  .week-row.phase-handoff .phase-tag { color: var(--handoff-text); }
+
+  .legend-section {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--cream-dark);
+  }
+  .legend-section .label {
+    color: var(--gold);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .champion-note {
+    background: var(--cream);
+    border-left: 4px solid var(--gold);
+    padding: 16px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    color: var(--gray-text);
+    margin-top: 16px;
+  }
+  .champion-note strong { color: var(--black); }
+
+  .roadmap-footer {
+    background: var(--black);
+    color: var(--cream-dark);
+    padding: 24px 40px;
+    text-align: center;
+  }
+  .roadmap-footer .quote {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    color: var(--gold);
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+  .roadmap-footer .brand {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .empty-state {
+    background: var(--white);
+    border: 2px dashed var(--gray-light);
+    border-radius: 8px;
+    padding: 80px 40px;
+    text-align: center;
+    color: var(--gray-text);
+  }
+  .empty-state h3 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--black);
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    font-size: 14px;
+  }
+
+  /* Print */
+  @media print {
+    body { background: var(--white); }
+    header, .input-panel { display: none !important; }
+    .container { grid-template-columns: 1fr; padding: 0; max-width: none; }
+    .roadmap { box-shadow: none; border: none; }
+    .roadmap-header, .roadmap-footer {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .week-row {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    @page { margin: 0.5in; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tagline">LuxeCraft Consulting</div>
+  <h1>Implementation Roadmap Generator</h1>
+  <div class="subtitle">Generate a client-facing flowchart showing all 13 weeks of their JobTread implementation. Customizes automatically based on the assigned track from the Build Complexity Scorecard.</div>
+</header>
+
+<div class="container">
+
+  <!-- Input Panel -->
+  <aside class="input-panel">
+    <div class="card">
+      <span class="section-tag">Client Setup</span>
+      <h2>Roadmap Inputs</h2>
+      <p class="intro">Fill in the engagement details. The roadmap will update live as you type.</p>
+
+      <div class="field">
+        <label>Client / Company name</label>
+        <input type="text" id="client-name" placeholder="e.g. Haven Valley">
+      </div>
+
+      <div class="field">
+        <label>Kickoff date (Week 0)</label>
+        <input type="date" id="kickoff-date">
+      </div>
+
+      <div class="field">
+        <label>Implementation track</label>
+        <div class="track-options">
+          <label class="track-option" data-track="light">
+            <input type="radio" name="track" value="light">
+            <div class="name">Light</div>
+            <div class="detail">2 build / 9 rollout</div>
+          </label>
+          <label class="track-option selected" data-track="moderate">
+            <input type="radio" name="track" value="moderate" checked>
+            <div class="name">Moderate</div>
+            <div class="detail">4 build / 7 rollout</div>
+          </label>
+          <label class="track-option" data-track="heavy">
+            <input type="radio" name="track" value="heavy">
+            <div class="name">Heavy</div>
+            <div class="detail">6 build / 5 rollout</div>
+          </label>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="print-btn">Print / Save as PDF</button>
+        <button class="btn btn-secondary" id="save-btn">Save Progress (JSON)</button>
+        <button class="btn btn-secondary" id="load-btn">Load Progress</button>
+        <input type="file" id="load-file" accept=".json" style="display:none;">
+      </div>
+      <div class="save-status" id="save-status">Auto-saved locally</div>
+    </div>
+  </aside>
+
+  <!-- Roadmap Output -->
+  <main id="roadmap-container">
+    <div class="empty-state" id="empty-state">
+      <h3>Enter client details to generate roadmap</h3>
+      <p>Client name and kickoff date required.</p>
+    </div>
+    <div class="roadmap" id="roadmap" style="display:none;">
+      <div class="roadmap-header">
+        <div class="brand">LuxeCraft Consulting · Implementation Roadmap</div>
+        <h2 id="roadmap-title">13-Week JobTread Implementation</h2>
+        <div class="client-line" id="roadmap-client">Client Name</div>
+        <div class="meta" id="roadmap-meta">Kickoff date · Track</div>
+      </div>
+
+      <div class="roadmap-body">
+        <div class="roadmap-intro" id="roadmap-intro"></div>
+        <div id="weeks-container"></div>
+
+        <div class="legend-section">
+          <span class="label">About This Roadmap</span>
+          <div class="champion-note">
+            <strong>Success Champion weekly training</strong> runs alongside every week from Week 1 through Week 11. Your designated Champion learns each tool one week ahead of the team in a 30–45 minute session, so they can co-lead each rollout with confidence.
+          </div>
+        </div>
+      </div>
+
+      <div class="roadmap-footer">
+        <div class="quote">Let's build something that lasts.</div>
+        <div class="brand">LuxeCraft Consulting · LuxeCraftConsulting.com</div>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'luxecraft-roadmap-v1';
+
+  // Track configurations - defines which weeks belong to which phase
+  // Structure: { weekNum: { phase, title, detail, tag } }
+
+  const TRACKS = {
+    light: {
+      name: 'Light',
+      summary: '2-week build · 9-week rollout · 1-week handoff',
+      description: 'Your account is largely in working order. Phase 1 will focus on targeted refinement and gap fills before a thoughtful, paced team rollout.',
+      weeks: {
+        0: { phase: 'setup', title: 'Discovery & Kickoff', detail: 'Track confirmation, scope review, kickoff meeting', tag: 'Setup' },
+        1: { phase: 'build', title: 'Build-out begins', detail: 'Cost catalog refinement, customer pipeline cleanup, user roles', tag: 'Build' },
+        2: { phase: 'build', title: 'Build wraps + Champion ready', detail: 'Templates verified, customer/job data ready, Champion fully trained', tag: 'Build' },
+        3: { phase: 'habits', title: 'Messaging, to-dos, daily logs', detail: 'First team rollout. Habit-building tools go live across the whole team.', tag: 'Habits' },
+        4: { phase: 'foundation', title: 'Budgets go live', detail: 'The heartbeat. Estimators and PMs start using budgets in real work.', tag: 'Foundation' },
+        5: { phase: 'foundation', title: 'Plans + Schedules', detail: 'Schedules connect to budgets, plans tab activates with parameters', tag: 'Foundation' },
+        6: { phase: 'foundation', title: 'Time tracking', detail: 'Now possible. Time logged against budgets and schedules.', tag: 'Foundation' },
+        7: { phase: 'sales', title: 'Selections + Allowances', detail: 'Customer-facing selections experience goes live', tag: 'Sales' },
+        8: { phase: 'sales', title: 'Documents, files, proposals, contracts', detail: 'Document workflow, proposals, contracts, e-signatures', tag: 'Sales' },
+        9: { phase: 'financial', title: 'Financial closure', detail: 'Change orders, POs, invoicing, cost tracking', tag: 'Financial' },
+        10: { phase: 'foundation', title: 'Buffer + refinement', detail: 'Catch-up week for any tools needing reinforcement', tag: 'Buffer' },
+        11: { phase: 'foundation', title: 'Adoption deepening', detail: 'Reinforcement of habits, address any holdouts', tag: 'Adoption' },
+        12: { phase: 'handoff', title: 'Dashboards, KPIs, handoff', detail: 'Leadership visibility, transition into Support Lab', tag: 'Handoff' },
+      }
+    },
+    moderate: {
+      name: 'Moderate',
+      summary: '4-week build · 7-week rollout · 1-week handoff',
+      description: 'Your account needs meaningful build-out alongside cleanup. The 4-week build phase produces a ready foundation before team rollout begins.',
+      weeks: {
+        0: { phase: 'setup', title: 'Discovery & Kickoff', detail: 'Track confirmation, scope review, kickoff meeting', tag: 'Setup' },
+        1: { phase: 'build', title: 'Build-out begins', detail: 'Cost catalog, customer pipeline, user roles, document templates', tag: 'Build' },
+        2: { phase: 'build', title: 'Budget and plans', detail: 'Budget templates built, plans + parameters configured', tag: 'Build' },
+        3: { phase: 'build', title: 'Schedule and selections', detail: 'Schedule template, selections catalog, allowances built', tag: 'Build' },
+        4: { phase: 'build', title: 'Customers, jobs, Champion ready', detail: 'Live customer/job data loaded, Champion fully trained', tag: 'Build' },
+        5: { phase: 'habits', title: 'Messaging, to-dos, daily logs', detail: 'First team rollout. Habit-building tools go live across the whole team.', tag: 'Habits' },
+        6: { phase: 'foundation', title: 'Budgets go live', detail: 'The heartbeat. Estimators and PMs start using budgets in real work.', tag: 'Foundation' },
+        7: { phase: 'foundation', title: 'Plans + Schedules', detail: 'Schedules connect to budgets, plans tab activates with parameters', tag: 'Foundation' },
+        8: { phase: 'foundation', title: 'Time tracking', detail: 'Now possible. Time logged against budgets and schedules.', tag: 'Foundation' },
+        9: { phase: 'sales', title: 'Selections + Allowances', detail: 'Customer-facing selections experience goes live', tag: 'Sales' },
+        10: { phase: 'sales', title: 'Documents, files, proposals, contracts', detail: 'Document workflow, proposals, contracts, e-signatures', tag: 'Sales' },
+        11: { phase: 'financial', title: 'Financial closure', detail: 'Change orders, POs, invoicing, cost tracking', tag: 'Financial' },
+        12: { phase: 'handoff', title: 'Dashboards, KPIs, handoff', detail: 'Leadership visibility, transition into Support Lab', tag: 'Handoff' },
+      }
+    },
+    heavy: {
+      name: 'Heavy',
+      summary: '6-week build · 5-week rollout · 1-week handoff',
+      description: 'Your account requires substantial build-out from near-scratch. The extended 6-week build phase ensures a fully ready foundation before team rollout begins at a condensed cadence.',
+      weeks: {
+        0: { phase: 'setup', title: 'Discovery & Kickoff', detail: 'Track confirmation, scope review, kickoff meeting', tag: 'Setup' },
+        1: { phase: 'build', title: 'Foundation build begins', detail: 'Cost catalog construction, user roles, account hygiene', tag: 'Build' },
+        2: { phase: 'build', title: 'Customer pipeline + templates', detail: 'Customer pipeline stages, document templates, vendor records', tag: 'Build' },
+        3: { phase: 'build', title: 'Budget templates', detail: 'Full budget template construction with formulas and assemblies', tag: 'Build' },
+        4: { phase: 'build', title: 'Plans + parameters', detail: 'Plans tab structure, parameter library tied to budget', tag: 'Build' },
+        5: { phase: 'build', title: 'Schedule + Selections', detail: 'Schedule templates, full selections catalog with allowances', tag: 'Build' },
+        6: { phase: 'build', title: 'Customers, jobs, Champion ready', detail: 'Live customer/job data loaded, integrations verified, Champion fully trained', tag: 'Build' },
+        7: { phase: 'habits', title: 'Messaging, to-dos, daily logs', detail: 'First team rollout. Habit-building tools go live across the whole team.', tag: 'Habits' },
+        8: { phase: 'foundation', title: 'Budgets + Plans + Schedules', detail: 'The heartbeat goes live. Schedules and plans activate together.', tag: 'Foundation' },
+        9: { phase: 'foundation', title: 'Time tracking', detail: 'Now possible. Time logged against budgets and schedules.', tag: 'Foundation' },
+        10: { phase: 'sales', title: 'Selections, allowances, proposals, contracts', detail: 'Full sales workflow goes live for customer-facing teams', tag: 'Sales' },
+        11: { phase: 'financial', title: 'Financial closure', detail: 'Change orders, POs, invoicing, cost tracking, document workflow', tag: 'Financial' },
+        12: { phase: 'handoff', title: 'Dashboards, KPIs, handoff', detail: 'Leadership visibility, transition into Support Lab', tag: 'Handoff' },
+      }
+    }
+  };
+
+  // Format date as "Mon Jun 8" or "Jun 8"
+  function formatShortDate(date, includeWeekday = false) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    if (includeWeekday) {
+      return `${days[date.getDay()]} ${months[date.getMonth()]} ${date.getDate()}`;
+    }
+    return `${months[date.getMonth()]} ${date.getDate()}`;
+  }
+
+  function formatLongDate(date) {
+    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  }
+
+  // Calculate week start (Monday) of the week containing kickoff
+  function getWeekStart(date) {
+    const d = new Date(date);
+    const day = d.getDay();
+    // Adjust to Monday (treat Sunday=0 as last day of prior week)
+    const diff = day === 0 ? -6 : 1 - day;
+    d.setDate(d.getDate() + diff);
+    return d;
+  }
+
+  function addWeeks(date, weeks) {
+    const d = new Date(date);
+    d.setDate(d.getDate() + weeks * 7);
+    return d;
+  }
+
+  function renderRoadmap() {
+    const clientName = document.getElementById('client-name').value.trim();
+    const kickoffStr = document.getElementById('kickoff-date').value;
+    const trackKey = document.querySelector('input[name="track"]:checked').value;
+
+    if (!clientName || !kickoffStr) {
+      document.getElementById('empty-state').style.display = 'block';
+      document.getElementById('roadmap').style.display = 'none';
+      return;
+    }
+
+    document.getElementById('empty-state').style.display = 'none';
+    document.getElementById('roadmap').style.display = 'block';
+
+    const track = TRACKS[trackKey];
+    const kickoffDate = new Date(kickoffStr + 'T00:00:00');
+    const week0Start = getWeekStart(kickoffDate);
+
+    document.getElementById('roadmap-client').textContent = clientName;
+    document.getElementById('roadmap-meta').textContent =
+      `${track.name} Track · Kickoff ${formatLongDate(kickoffDate)} · ${track.summary}`;
+    document.getElementById('roadmap-intro').textContent = track.description;
+
+    const container = document.getElementById('weeks-container');
+    container.innerHTML = '';
+
+    for (let i = 0; i <= 12; i++) {
+      const week = track.weeks[i];
+      if (!week) continue;
+      const weekStart = addWeeks(week0Start, i);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekEnd.getDate() + 4); // Friday
+
+      const datesText = `Starting ${formatShortDate(weekStart, true)} · ${formatShortDate(weekStart)}–${formatShortDate(weekEnd)}`;
+
+      const row = document.createElement('div');
+      row.className = `week-row phase-${week.phase}`;
+      row.innerHTML = `
+        <div class="week-num">
+          ${i}
+          <span class="label">Week</span>
+        </div>
+        <div class="week-content">
+          <div class="week-title">${escapeHtml(week.title)}</div>
+          <div class="week-dates">${datesText}</div>
+          <div class="week-detail">${escapeHtml(week.detail)}</div>
+        </div>
+        <div class="phase-tag">${escapeHtml(week.tag)}</div>
+      `;
+      container.appendChild(row);
+    }
+
+    autoSave();
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  // Track selection visual state
+  document.querySelectorAll('.track-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.track-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      opt.querySelector('input').checked = true;
+      renderRoadmap();
+    });
+  });
+
+  // Live update on input
+  document.getElementById('client-name').addEventListener('input', renderRoadmap);
+  document.getElementById('kickoff-date').addEventListener('change', renderRoadmap);
+
+  // Save / load
+  let saveTimer = null;
+  function autoSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(getState()));
+        flashSave('Auto-saved locally');
+      } catch (e) {}
+    }, 400);
+  }
+
+  function flashSave(msg) {
+    document.getElementById('save-status').textContent = msg;
+  }
+
+  function getState() {
+    return {
+      version: 1,
+      savedAt: new Date().toISOString(),
+      client: document.getElementById('client-name').value,
+      kickoff: document.getElementById('kickoff-date').value,
+      track: document.querySelector('input[name="track"]:checked').value,
+    };
+  }
+
+  function loadState(state) {
+    if (!state) return;
+    document.getElementById('client-name').value = state.client || '';
+    document.getElementById('kickoff-date').value = state.kickoff || '';
+    if (state.track) {
+      document.querySelectorAll('.track-option').forEach(o => o.classList.remove('selected'));
+      const opt = document.querySelector(`.track-option[data-track="${state.track}"]`);
+      if (opt) {
+        opt.classList.add('selected');
+        opt.querySelector('input').checked = true;
+      }
+    }
+    renderRoadmap();
+  }
+
+  function saveToFile() {
+    const state = getState();
+    const slug = (state.client || 'unnamed-client').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const date = new Date().toISOString().split('T')[0];
+    const filename = `luxecraft-roadmap-${slug}-${date}.json`;
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    flashSave('Saved to file');
+  }
+
+  function loadFromFile(file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        loadState(JSON.parse(e.target.result));
+        flashSave('Loaded from file');
+      } catch (err) {
+        alert('Could not read that file.');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  document.getElementById('print-btn').addEventListener('click', () => window.print());
+  document.getElementById('save-btn').addEventListener('click', saveToFile);
+  document.getElementById('load-btn').addEventListener('click', () => document.getElementById('load-file').click());
+  document.getElementById('load-file').addEventListener('change', e => {
+    if (e.target.files[0]) loadFromFile(e.target.files[0]);
+  });
+
+  // Init
+  document.addEventListener('DOMContentLoaded', () => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        loadState(JSON.parse(saved));
+        return;
+      }
+    } catch (e) {}
+    renderRoadmap();
+  });
+</script>
+</body>
+</html>
